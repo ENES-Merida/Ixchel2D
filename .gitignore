@@ -30,3 +30,15 @@
 *.exe
 *.out
 *.app
+
+# Do not track the following files:
+*.vtk
+*.txt
+*.png
+*.jpeg
+
+# Do not track the following directories:
+build/
+
+# The following files can be tracked:
+!CmakeLists.txt
