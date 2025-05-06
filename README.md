@@ -1,4 +1,9 @@
-
+<div align="center">
+  <img
+    src=".readme-images/ixchel2d.png"
+    height="100"
+  />
+</div>
 <h1 align="center">Ixchel2D</h1>
 
 <div align="center">
