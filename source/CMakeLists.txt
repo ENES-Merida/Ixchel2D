@@ -2,7 +2,7 @@
 cmake_minimum_required(VERSION 3.22)
 
 # Nombre del proyecto y lenguaje de programacion a utilizar
-project(SIMPLE2D LANGUAGES Fortran)
+project(IXCHEL2D LANGUAGES Fortran)
 
 # Configuracion para usar gpu
 option(ENABLE_GPU "Enable GPU use" OFF)
@@ -15,7 +15,7 @@ if(ENABLE_GPU)
     message(STATUS "CUDA Architecture: ${CUDA_ARCHITECTURE}")
 
     # Definir el nombre del ejecutable
-    set(EXEC_NAME SIMPLE2D-gpu)
+    set(EXEC_NAME IXCHEL2D-gpu)
 
     # Banderas para utilizar OpenAcc con GPU
     set(ACC_GPU "-fast -acc=gpu -gpu=${CUDA_ARCHITECTURE} -Minfo=accel")
@@ -23,7 +23,7 @@ else()
     message(STATUS "Using OpenAcc MULTICORE")
 
     # Definir el nombre del ejecutable
-    set(EXEC_NAME SIMPLE2D-multicore)
+    set(EXEC_NAME IXCHEL2D-multicore)
 
     # Banderas para utilizar OpenAcc con Multicore
     set(ACC_MULTICORE "-fast -acc=multicore -Minfo=accel")
