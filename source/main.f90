@@ -5,7 +5,7 @@
 ! autor: J.C. Cajas
 !
 !
-PROGRAM SIMPLE2D
+PROGRAM IXCHEL2D
   !
   ! Variables de la malla, volumen de control y factores de interpolaci\'on
   !
@@ -1087,4 +1087,4 @@ PROGRAM SIMPLE2D
      !
   end do !*********** final del repetidor principal
   !
-end program SIMPLE2D
+end program IXCHEL2D
