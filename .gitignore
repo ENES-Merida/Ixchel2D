@@ -41,4 +41,4 @@
 build/
 
 # The following files can be tracked:
-!CmakeLists.txt
+!CMakeLists.txt
