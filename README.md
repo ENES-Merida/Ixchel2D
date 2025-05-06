@@ -1,7 +1,7 @@
 <div align="center">
   <img
     src=".readme-images/ixchel2d.png"
-    height="100"
+    height="230"
   />
 </div>
 <h1 align="center">Ixchel2D</h1>
@@ -11,7 +11,7 @@
 </div>
 
 <h5 align="center">
-  Repositorio de software de simulación Ixchel2D
+  Software de Simulación Numérica Ixchel2D
 </h5>
 
 <div align="center">
