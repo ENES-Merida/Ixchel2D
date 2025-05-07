@@ -7,7 +7,8 @@
 <h1 align="center">Ixchel2D</h1>
 
 <div align="center">
-  <img src=".readme-images/head-simulation.png" style="width:80%;"/>
+  <!-- <img src=".readme-images/head-simulation.png" style="width:80%;"/> -->
+  <img src="https://drive.google.com/file/d/11Q7QqwOcK9HVudGsR1PtiLxLcXW50jgM/view?usp=drive_link" style="width:80%;"/>
 </div>
 
 <h5 align="center">
