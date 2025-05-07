@@ -1,10 +1,14 @@
-<div align="center">
-  <img
-    src=".readme-images/ixchel2d-logo.png"
-    height="230"
-  />
-</div>
-<h1 align="center">Ixchel2D</h1>
+<h1 align="center">
+  Ixchel2D
+  <br/>
+  <br/>
+  <div>
+    <img
+      src=".readme-images/ixchel2d-logo.png"
+      height="230"
+    />
+  </div>
+</h1>
 
 <div align="center">
 <!--   <img src=".readme-images/head-simulation.png" style="width:80%;"/> -->
