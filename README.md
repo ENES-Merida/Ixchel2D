@@ -1,6 +1,6 @@
 <div align="center">
   <img
-    src=".readme-images/ixchel2d.png"
+    src=".readme-images/ixchel2d-logo.png"
     height="230"
   />
 </div>
