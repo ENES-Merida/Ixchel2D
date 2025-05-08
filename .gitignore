@@ -40,10 +40,8 @@
 # Do not track the following directories:
 build/
 casos/
-malla/
 Build/
 Casos/
-Malla/
 
 # The following files and directories can be tracked:
 !CMakeLists.txt
