@@ -39,10 +39,15 @@
 
 # Do not track the following directories:
 build/
+casos/
+malla/
+Build/
+Casos/
+Malla/
 
 # The following files and directories can be tracked:
 !CMakeLists.txt
 !logo-ixchel2d-a.png
 !logo-ixchel2d-b.png
-!project-logos/
-!project-logos/**
+!.project-logos/
+!.project-logos/**
