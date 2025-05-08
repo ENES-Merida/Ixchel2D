@@ -9,12 +9,10 @@
     />
   </div>
 </h1>
-
-<div align="center">
-  <img src=".readme-images/head-simulation.png" style="width:80%;"/>
+<!-- <div align="center">
+    <img src=".readme-images/head-simulation.png" style="width:80%;"/>
 <!--   <img src=".readme-images/lidCavity.gif" style="width:60%;"/> -->
-</div>
-
+</div> -->
 <h5 align="center">
   Software de Simulación Numérica Ixchel2D
 </h5>
