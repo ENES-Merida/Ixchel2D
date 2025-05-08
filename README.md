@@ -4,14 +4,18 @@
   <br/>
   <div>
     <img
-      src=".readme-images/ixchel2d-logo.png"
+      src=".readme-images/logo-ixchel2d-b.png"
+      height="230"
+    />
+    <img
+      src=".readme-images/logo-ixchel2d-a.png"
       height="230"
     />
   </div>
 </h1>
 <!-- <div align="center">
     <img src=".readme-images/head-simulation.png" style="width:80%;"/>
-<!--   <img src=".readme-images/lidCavity.gif" style="width:60%;"/> -->
+    <img src=".readme-images/lidCavity.gif" style="width:60%;"/> 
 </div> -->
 <h5 align="center">
   Software de Simulación Numérica Ixchel2D
