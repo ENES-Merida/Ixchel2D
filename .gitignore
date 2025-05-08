@@ -42,4 +42,5 @@ build/
 
 # The following files can be tracked:
 !CMakeLists.txt
-!ixchel2d-logo.png
+!logo-ixchel2d-a.png
+!logo-ixchel2d-b.png
