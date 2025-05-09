@@ -36,12 +36,15 @@
 *.txt
 *.png
 *.jpeg
+*.cmake
+Makefile
 
 # Do not track the following directories:
 build/
 casos/
 Build/
 Casos/
+CMakeFiles/
 
 # The following files and directories can be tracked:
 !CMakeLists.txt
