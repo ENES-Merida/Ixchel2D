@@ -11,6 +11,11 @@ MODULE cond_frontera
   !
   implicit none
   !
+  ! Formato de escritura
+  !
+  character(len=16), parameter :: form36="(3A,1I2,2A)"
+  character(len=32), parameter :: form37="(3A,F8.3,1A,F8.3,2A)"
+  !
   ! Nombres de los archivos para condiciones de frontera
   !
   character(len=18) :: entrada_front_u
@@ -98,6 +103,9 @@ contains
     !
     ! Apertura de los archivos y lectura de los arreglos
     !
+    write(*,*) " "
+    write(*,*) "Inicio de lectura de condiciones de frontera"
+    write(*,*) " "    
     open(unit=111,file=entrada_front_uuo)
     !
     ! Se esperan 4 lados en el rect\'angulo en el archivo
@@ -107,8 +115,8 @@ contains
        !
        read(111,*) variable, lado, divisiones
        !
-       write(*,*) "SIMPLE2D: Condiciones de frontera para ", variable, &
-            &" con ", divisiones," divisiones en lado ", lado
+       write(*,form36) 'Cond. de frontera para ', variable, &
+            &' con ', divisiones,' division(es) en lado ', lado
        !
        lado: select case( lado )
           !
@@ -120,7 +128,7 @@ contains
              !
              read(111,*) x0, x1, tipo_condicion, valor
              !
-             write(*,*) "SIMPLE 2D: condici\'on tipo ", tipo_condicion, &
+             write(*,form37) "     condici\'on tipo ", tipo_condicion, &
                   &" entre ", x0, " y ", x1," en lado ", lado
              !
              cond_front_uua % lado_front     = 'a'
@@ -148,7 +156,7 @@ contains
              !
              read(111,*) x0, x1, tipo_condicion, valor
              !
-             write(*,*) "SIMPLE 2D: condici\'on tipo ", tipo_condicion, &
+             write(*,form37) "     condici\'on tipo ", tipo_condicion, &
                   &" entre ", x0, " y ", x1," en lado ", lado
              !
              cond_front_uub % lado_front     = 'b'
@@ -176,7 +184,7 @@ contains
              !
              read(111,*) x0, x1, tipo_condicion, valor
              !
-             write(*,*) "SIMPLE 2D: condici\'on tipo ", tipo_condicion, &
+             write(*,form37) "     condici\'on tipo ", tipo_condicion, &
                   &" entre ", x0, " y ", x1," en lado ", lado
              !
              cond_front_uuc % lado_front     = 'c'
@@ -205,7 +213,7 @@ contains
              !
              read(111,*) x0, x1, tipo_condicion, valor
              !
-             write(*,*) "SIMPLE 2D: condici\'on tipo ", tipo_condicion, &
+             write(*,form37) "     condici\'on tipo ", tipo_condicion, &
                   &" entre ", x0, " y ", x1," en lado ", lado
              !
              cond_front_uud % lado_front     = 'd'
@@ -231,6 +239,9 @@ contains
     !
     close(unit=111)
     !
+    write(*,*) " "
+    write(*,*) "Fin de lectura de condiciones de frontera"
+    write(*,*) " "  
   end subroutine lectura_cond_frontera
   !
   !***************************************************************************

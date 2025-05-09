@@ -134,6 +134,16 @@ PROGRAM IXCHEL2D
   !
   !***********************************************************
   !
+  ! Mensaje de bienvenida
+  !
+  write(*,*) "----------------------------------------"
+  write(*,*) " "
+  write(*,*) "                 IXCHEL2D"
+  write(*,*) " "
+  write(*,*) "----------------------------------------"
+  write(*,*) "Inicia lectura de archivo de par'ametros"
+  !
+  !
   ! Valor por defecto de la variable de control de postproceso
   !
   postprocesar = .false.
@@ -164,6 +174,9 @@ PROGRAM IXCHEL2D
   READ (10,*) entrada_tp      ! archivo de entrada para t y p
   read (10,*) postprocesar    ! variable booleana que indica si hay postproceso
   CLOSE(unit=10)
+  !
+  write(*,*) "Finaliza lectura de archivo de par'ametros"
+  write(*,*) "------------------------------------------"
   !
   !--------------------------------------------------------------
   !
@@ -199,8 +212,8 @@ PROGRAM IXCHEL2D
      ! 
      gamma_momen = sqrt(Pr/Ra) 
      gamma_energ = sqrt(1._DBL/(Pr*Ra))
-     Ri          =-1.0_DBL
-     Riy         = 0.0_DBL
+     Ri          = 0.0_DBL
+     Riy         = 1.0_DBL
      Rec         = entero_caracter(ceiling(sqrt(Ra)))
      !
   else if( trim(adimen) == 'mixta' )then
@@ -221,6 +234,7 @@ PROGRAM IXCHEL2D
   !
   ! Lectura de las mallas escalonadas e inicializaci\'on de arreglos
   !
+  write(*,*) "Inicia lectura de mallas"
   call lectura_mallas_escalonadas(entrada_u,entrada_v,entrada_tp,&
        &u_ant,v_ant,pres,temp_ant,&
        &xp,yp,xu,yv,&
@@ -229,6 +243,8 @@ PROGRAM IXCHEL2D
        &deltaxv,deltayv,&
        &fexp,feyp,fexu,feyv,&
        &ao,placa_min,placa_max,itera_inicial)
+  write(*,*) "Finaliza lectura de mallas"
+  write(*,*) "--------------------------"
   ! !*****************
   !valores iniciales
   tiempo_inicial = itera_inicial*dt
@@ -268,7 +284,7 @@ PROGRAM IXCHEL2D
   !
   !************************************************
   !escribe las caracter´isticas de las variable DBL
-  WRITE(*,100) 'SIMPLE2D: Doble ',KIND(var2),PRECISION(var2),RANGE(var2)
+  WRITE(*,100) 'IXCHEL2D: Doble ',KIND(var2),PRECISION(var2),RANGE(var2)
 100 FORMAT(1X,A,': kind= ',I2,', Precision= ',I2,' Rango= ',I3)
   WRITE(*,*)' '
   !escribe informaci'on de los parametros usados

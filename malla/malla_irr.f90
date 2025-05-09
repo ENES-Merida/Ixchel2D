@@ -1,5 +1,7 @@
 Program malla_irr
-  use constantes
+  use malla,       only : mi, nj, DBL
+  use postproceso, only : entero_caracter
+  use postproceso, only : postproceso_vtk
   Implicit none
   Integer i,j,k,i_o,i_1
   !*****************************************
@@ -104,7 +106,7 @@ Program malla_irr
      !
      ! Malla para y compactada alrededor de yc
      !
-     tau=2._DBL
+     tau=5._DBL
      b=1._DBL/(2._DBL*tau)*dlog((1._DBL+(dexp(tau)-1._DBL)*(yc/bo))/(1._DBL+(dexp(-tau)-1._DBL)*(yc/bo)))
      do i =1,nj
         yv_eta(i)=yc*(1._DBL+dsinh(tau*(yv(i)-b))/dsinh(tau*b))
