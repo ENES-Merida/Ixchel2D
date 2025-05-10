@@ -136,11 +136,11 @@ PROGRAM IXCHEL2D
   !
   ! Mensaje de bienvenida
   !
-  write(*,*) "----------------------------------------"
+  write(*,*) "------------------------------------------"
   write(*,*) " "
   write(*,*) "                 IXCHEL2D"
   write(*,*) " "
-  write(*,*) "----------------------------------------"
+  write(*,*) "------------------------------------------"
   write(*,*) "Inicia lectura de archivo de par'ametros"
   !
   !
@@ -213,7 +213,7 @@ PROGRAM IXCHEL2D
      gamma_momen = sqrt(Pr/Ra) 
      gamma_energ = sqrt(1._DBL/(Pr*Ra))
      Ri          = 0.0_DBL
-     Riy         = 1.0_DBL
+     Riy         =-1.0_DBL
      Rec         = entero_caracter(ceiling(sqrt(Ra)))
      !
   else if( trim(adimen) == 'mixta' )then
@@ -224,8 +224,8 @@ PROGRAM IXCHEL2D
      ! gamma_s     = 10._DBL*(1._DBL/(Ra*Pr))
      gamma_momen = 1.0_DBL/(Ra)    ! n\'umero de Reynolds
      gamma_energ = 1.0_DBL/(Ra*Pr) ! N'umero de P'eclet
-     Ri          = Ri_1
-     Riy         = 0.0_DBL
+     Ri          = 0.0_DBL
+     Riy         = Ri_1
      Rec         = entero_caracter(ceiling(Ra))
      !
   end if
