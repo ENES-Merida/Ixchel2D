@@ -43,7 +43,8 @@ PROGRAM IXCHEL2D
   use ec_momento, only : cond_front_ua, cond_front_ub  
   use ec_momento, only : cond_front_uc, cond_front_ud
   use ec_momento, only : cond_front_va, cond_front_vb  
-  use ec_momento, only : cond_front_vc, cond_front_vd  
+  use ec_momento, only : cond_front_vc, cond_front_vd
+  use ec_momento, only : condicion_inicial_flujo
   !
   ! Variables para la ecuaci\'on de la energ\'ia
   ! temperatura, coeficiente de difusi\'on y criterios de convergencia
@@ -54,6 +55,7 @@ PROGRAM IXCHEL2D
   use ec_energia, only : ini_frontera_t
   use ec_energia, only : cond_front_ta, cond_front_tb  
   use ec_energia, only : cond_front_tc, cond_front_td
+  use ec_energia, only : condicion_inicial_tempe
   ! 
   ! Rutina de ensamblaje de la ec. de energ\'ia
   !
@@ -88,6 +90,10 @@ PROGRAM IXCHEL2D
   !
   CHARACTER(len=28) :: entrada_u,entrada_v,entrada_tp
   character(len=7)  :: adimen
+  !
+  ! Variables para opciones de inicializaci\'on
+  !
+  character(len=8)  :: flujo_ini, tempe_ini
   !*******************************************
   !
   REAL(kind=DBL), DIMENSION(mi+1,nj+1) :: entropia_calor,entropia_viscosa,entropia,gamma_t
@@ -117,7 +123,8 @@ PROGRAM IXCHEL2D
   LOGICAL          :: res_fluido_u, postprocesar
   !****************************************
   !Variables de caracterizaci'on del fluido
-  REAL(kind=DBL) :: temp_ref,visc_cin,dif_term,cond_ter,cons_gra,coef_exp,long_ref,dens_ref
+  REAL(kind=DBL) :: temp_ref,visc_cin,dif_term,cond_ter,cons_gra
+  real(kind=DBL) :: coef_exp,long_ref,dens_ref
   !****************************
   !declaraci´on de variable DBL
   REAL(kind=DBL) :: var2=0.0_DBL
@@ -172,6 +179,8 @@ PROGRAM IXCHEL2D
   READ (10,*) entrada_u       ! archivo de entrada para u
   READ (10,*) entrada_v       ! archivo de entrada para v
   READ (10,*) entrada_tp      ! archivo de entrada para t y p
+  read (10,*) flujo_ini       ! opci'on de flujo inicial
+  read (10,*) tempe_ini       ! opci'on de temperatura inicial
   read (10,*) postprocesar    ! variable booleana que indica si hay postproceso
   CLOSE(unit=10)
   !
@@ -249,15 +258,17 @@ PROGRAM IXCHEL2D
   !valores iniciales
   tiempo_inicial = itera_inicial*dt
   itera_total    = itera_inicial
+  call condicion_inicial_flujo(flujo_ini)
+  call condicion_inicial_tempe(tempe_ini)
   ! u_ant = 1.0_DBL
-  u_ant = 0.0_DBL
+  ! u_ant = 0.0_DBL
   ! v_ant = 0.0_DBL
   ! temp_ant = 0.0_DBL
-  u     = u_ant
-  v     = v_ant
-  uf    = 0.0_DBL
-  vf    = 0.0_DBL
-  temp  = temp_ant
+  u         = u_ant
+  v         = v_ant
+  uf        = 0.0_DBL
+  vf        = 0.0_DBL
+  temp      = temp_ant
   Resu      = 0.0_DBL
   corr_pres = 0.0_DBL !* dfloat(mi+1-ii)/dfloat(mi)
   au    = 1._DBL

@@ -50,6 +50,46 @@ contains
   !
   !*******************************************************************
   !
+  ! condicion_inicial_uv
+  !
+  ! Subrutina que inicializa los arreglos para u, v y p de acuerdo a
+  ! las conndiciones iniciales
+  !
+  !*******************************************************************  
+  subroutine condicion_inicial_flujo(cond_inicial)
+    !
+    implicit none
+    ! $acc routine
+    !
+    integer :: ii, jj
+    character(len=8), intent(in) :: cond_inicial
+    !
+    flujo_inicial: select case( trim(cond_inicial) )
+       !
+    case('nulo')
+       !
+       !$acc loop gang
+       do jj = 1, nj+1
+          do ii = 1, mi
+             u_ant(ii,jj) = 0.0_DBL
+          end do
+       end do
+       !$acc loop gang
+       do jj = 1, nj
+          do ii = 1, mi+1
+             v_ant(ii,jj) = 0.0_DBL
+          end do
+       end do
+       !
+    case('archivo')
+       !
+       return
+       !
+    end select flujo_inicial
+  end subroutine condicion_inicial_flujo
+  !
+  !*******************************************************************
+  !
   ! ini_frontera_uv
   !
   ! Subrutina que inicializa los arreglos para las condiciones

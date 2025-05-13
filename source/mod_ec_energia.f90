@@ -37,6 +37,50 @@ contains
   !
   !*******************************************************************
   !
+  ! condicion_inicial_uv
+  !
+  ! Subrutina que inicializa los arreglos para u, v y p de acuerdo a
+  ! las conndiciones iniciales
+  !
+  !*******************************************************************  
+  subroutine condicion_inicial_tempe(cond_inicial)
+    !
+    implicit none
+    ! $acc routine
+    !
+    integer :: ii, jj
+    character(len=8), intent(in) :: cond_inicial
+    !
+    temp_inicial: select case( trim(cond_inicial) )
+       !
+    case('baja')
+       !
+       !$acc loop gang
+       do jj = 1, nj+1
+          do ii = 1, mi+1
+             temp_ant(ii,jj) = 0.0_DBL
+          end do
+       end do
+       !
+    case('alta')
+       !
+       !$acc loop gang
+       do jj = 1, nj+1
+          do ii = 1, mi+1
+             temp_ant(ii,jj) = 1.0_DBL
+          end do
+       end do
+       !
+    case('archivo')
+       !
+       return
+       !
+    end select temp_inicial
+    !
+  end subroutine condicion_inicial_tempe
+  !
+  !*******************************************************************
+  !
   ! ini_frontera_t
   !
   ! Subrutina que inicializa los arreglos para las condiciones
