@@ -579,14 +579,16 @@ PROGRAM IXCHEL2D
               ! error de la ecuacion de momento
               !
               error = 0.0_DBL
-              !$acc parallel loop gang reduction(max:error) ! async(stream1)
+              !$acc parallel loop gang reduction(+:error) ! async(stream1)
               calculo_diferencias_dv: do jj=2, nj-1
                  !
                  !$acc loop vector
-                  do ii = 2, mi
-                    error = max(error, abs(v(ii,jj)-fv(ii,jj)))
-                  end do
+                 do ii = 2, mi
+                    !error = max(error, abs(v(ii,jj)-fv(ii,jj)))
+                    error = error + (v(ii,jj)-fv(ii,jj))*(v(ii,jj)-fv(ii,jj))
+                 end do
               end do calculo_diferencias_dv
+              error = sqrt(error)
               !
               ! Criterio de convergencia de la velocidad
               !
@@ -714,13 +716,16 @@ PROGRAM IXCHEL2D
               error = 0.0_DBL
               maxbo = 0.0_DBL
               !
-              !$acc parallel loop gang reduction(max:error) !async(stream1)
+              !$acc parallel loop gang reduction(+:error) !async(stream1)
               calculo_dif_corr_pres: do jj=2, nj
                  do ii=2, mi
-                    error = max(error,abs(corr_pres(ii,jj)-fcorr_pres(ii,jj)))
+                    ! error = max(error,abs(corr_pres(ii,jj)-fcorr_pres(ii,jj)))
+                    error = error + (corr_pres(ii,jj)-fcorr_pres(ii,jj))*&
+                         (corr_pres(ii,jj)-fcorr_pres(ii,jj))
                     ! maxbo = max(maxbo,abs(b_o(ii,jj)))
                  end do
               end do calculo_dif_corr_pres
+              error=sqrt(error)
               !
               !$acc parallel loop gang reduction(+:maxbo) !async(stream2)
               calculo_dif_maxbo: do jj=2, nj
@@ -742,8 +747,7 @@ PROGRAM IXCHEL2D
                  exit
               else if (iter_ecuaci > iter_ecuaci_max) then
                  iter_ecuaci = 0
-                 ! write(*,*) "ADVER. PRES: convergencia no alcanzada ", &
-                 !      error
+                 write(*,*) "ADVER. PRES: convergencia no alcanzada ", error
                  exit
               else
                  iter_ecuaci = iter_ecuaci+1
