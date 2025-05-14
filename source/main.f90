@@ -953,7 +953,7 @@ PROGRAM IXCHEL2D
            residuo = sqrt(residuo)
            !
            !$acc wait
-           if ( maxbo<conv_paso ) then !.and. residuo<conv_resi)then
+           if ( maxbo<conv_paso .and. residuo<conv_resi)then
               iter_simple = 0
               write(102,*) 'SIMPLE', iter_simple, maxbo, residuo
               exit
