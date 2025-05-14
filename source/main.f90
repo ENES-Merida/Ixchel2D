@@ -592,7 +592,7 @@ PROGRAM IXCHEL2D
               !
               if ( error < conv_u ) then
                  iter_ecuaci = 0
-                 write(101,*) 'velocidad ', error
+                 ! write(101,*) 'velocidad ', error
                  exit
               else if (iter_ecuaci > iter_ecuaci_max) then
                  iter_ecuaci = 0
@@ -600,7 +600,7 @@ PROGRAM IXCHEL2D
                  exit
               else
                  iter_ecuaci = iter_ecuaci+1
-                 write(101,*) 'velocidad ', error
+                 ! write(101,*) 'velocidad ', error
               end if
               !            
            end do ecuacion_momento
@@ -722,13 +722,15 @@ PROGRAM IXCHEL2D
                  end do
               end do calculo_dif_corr_pres
               !
-              !$acc parallel loop gang reduction(max:maxbo) !async(stream2)
+              !$acc parallel loop gang reduction(+:maxbo) !async(stream2)
               calculo_dif_maxbo: do jj=2, nj
                  do ii=2, mi
                     ! error = max(error,abs(corr_pres(ii,jj)-fcorr_pres(ii,jj)))
-                    maxbo = max(maxbo,abs(b_o(ii,jj)))
+                    ! maxbo = max(maxbo,abs(b_o(ii,jj)))
+                    maxbo = maxbo+b_o(ii,jj)*b_o(ii,jj)
                  end do
               end do calculo_dif_maxbo
+              maxbo = sqrt(maxbo)
               !-----------------------------------------------------
               !
               ! Critero de convergencia del corrector de la presi'on
@@ -941,17 +943,19 @@ PROGRAM IXCHEL2D
            !
            ! residuo del algoritmo
            residuo = 0.0_DBL
-           !$acc parallel loop reduction(max:residuo) !async(stream1)
+           !$acc parallel loop reduction(+:residuo) !async(stream1)
            calculo_maximo_residuou: do jj=2, nj
               do ii = 2, mi-1
-                 residuo = max(residuo, abs(Resu(ii,jj)))
+                 ! residuo = max(residuo, abs(Resu(ii,jj)))
+                 residuo = residuo + Resu(ii,jj)*Resu(ii,jj)
               end do
            end do calculo_maximo_residuou
+           residuo = sqrt(residuo)
            !
            !$acc wait
            if ( maxbo<conv_paso ) then !.and. residuo<conv_resi)then
               iter_simple = 0
-              write(102,*) 'SIMPLE', maxbo, residuo
+              write(102,*) 'SIMPLE', iter_simple, maxbo, residuo
               exit
            else if ( iter_simple > iter_simple_max ) then
               iter_simple = 0
@@ -959,7 +963,7 @@ PROGRAM IXCHEL2D
               exit
            else
               iter_simple = iter_simple + 1
-              write(102,*) 'SIMPLE', maxbo, residuo
+              write(102,*) 'SIMPLE', iter_simple, maxbo, residuo
               ! write(*,*) 'tiempo ',itera,res_fluido_u,MAXVAL(ABS(Resu)),MAXVAL(ABS(b_o)),&
                    ! &MAXVAL(ABS(pres))
            end if
