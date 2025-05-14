@@ -83,7 +83,7 @@ Program malla_irr
      ! Malla para x compactada en las paredes
      !
      ky=10._DBL
-     my=0.7_DBL !empaquetamiento en las paredes,menor coeficiente,mayor empaquetamiento
+     my=0.8_DBL !empaquetamiento en las paredes,menor coeficiente,mayor empaquetamiento
      do j=1,mi
         xu_eta(j)=ao*1.0_DBL*(0.5_DBL+my*(xu(j)-0.5_DBL)+0.5_DBL*(1-my)*derf(ky*(xu(j)-0.5_DBL))/derf(0.5_DBL*ky))
      end do
@@ -124,7 +124,7 @@ Program malla_irr
      ! Malla para y compactada en las paredes
      !
      ky=10._DBL
-     my=0.7_DBL !empaquetamiento en las paredes,menor coeficiente,mayor empaquetamiento
+     my=0.8_DBL !empaquetamiento en las paredes,menor coeficiente,mayor empaquetamiento
      do j=1,nj
         yv_eta(j)=bo*1.0_DBL*(0.5_DBL+my*(yv(j)-0.5_DBL)+0.5_DBL*(1-my)*derf(ky*(yv(j)-0.5_DBL))/derf(0.5_DBL*ky))
      end do
