@@ -897,12 +897,13 @@ PROGRAM IXCHEL2D
               !
               error = 0.0_DBL
               !
-              !$acc parallel loop reduction(max:error) !async(stream1) wait(stream2)
+              !$acc parallel loop reduction(+:error) !async(stream1) wait(stream2)
               calculo_diferencias_dtemp: do jj = 2, nj
                  do ii = 2, mi
-                    error = max(error, abs(temp(ii,jj)-ftemp(ii,jj)))
+                    error = error + (temp(ii,jj)-ftemp(ii,jj))*(temp(ii,jj)-ftemp(ii,jj))
                  end do
               end do calculo_diferencias_dtemp
+              error = sqrt(error)
               !
               !------------------------------------------
               !
