@@ -160,7 +160,7 @@ PROGRAM IXCHEL2D
   OPEN(unit=10,file='parametros.dat')
   read (10,*) adimen          ! Tipo de adimensionalizaci\'on (tipo de convecci\'on)
   READ (10,*) Ra              ! n'umero de Reynolds (Rayleigh en convecci\'on natural)
-  READ (10,*) Rec             ! caracter de Re
+  ! READ (10,*) Rec             ! caracter de Re
   READ (10,*) Pr              ! n'umero de Prandtl
   READ (10,*) Ri_1            ! n'umero de Richardson
   READ (10,*) dt              ! incremento de tiempo
