@@ -93,7 +93,17 @@ Program malla_irr
         x_eta(j+1)=(xu_eta(j+1)+xu_eta(j))/2._DBL
      end do
      x_eta(mi+1)=(3._DBL*xu_eta(mi)-xu_eta(mi-1))/2._DBL
-     !  
+     !
+  else if( tipox == 'unif' )then
+     do j=1,mi
+        xu_eta(j)=ao*1.0_DBL*xu(j)
+     end do    
+     x_eta(1)=(3._DBL*xu_eta(1)-xu_eta(2))/2._DBL
+     ! y_eta(1)=yv_eta(1)
+     do j=1,mi-1
+        x_eta(j+1)=(xu_eta(j+1)+xu_eta(j))/2._DBL
+     end do
+     x_eta(mi+1)=(3._DBL*xu_eta(mi)-xu_eta(mi-1))/2._DBL     
   end if
   !***********************
   !***********************
@@ -135,6 +145,16 @@ Program malla_irr
      end do
      y_eta(nj+1)=(3._DBL*yv_eta(nj)-yv_eta(nj-1))/2._DBL
      !
+  else if( tipoy == 'unif' )then
+     do j=1,nj
+        yv_eta(j)=bo*1.0_DBL*yv(j)
+     end do
+     y_eta(1)=(3._DBL*yv_eta(1)-yv_eta(2))/2._DBL
+     ! y_eta(1)=yv_eta(1)
+     do j=1,nj-1
+        y_eta(j+1)=(yv_eta(j+1)+yv_eta(j))/2._DBL
+     end do
+     y_eta(nj+1)=(3._DBL*yv_eta(nj)-yv_eta(nj-1))/2._DBL
   end if
   !velocidad inicial en x
   do j=1,nj+1
@@ -145,6 +165,11 @@ Program malla_irr
   end do
   u(1,1)=0._DBL
   u(1,nj+1)=0._DBL
+  ! ------------------------------------------------------------------------
+  ! Mallado uniforme
+  !
+  
+  
   !**********************************
   !**********************************
   !archivo de escritura de la malla u
