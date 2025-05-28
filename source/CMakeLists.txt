@@ -18,7 +18,7 @@ if(ENABLE_GPU)
     set(EXEC_NAME IXCHEL2D-gpu)
 
     # Banderas para utilizar OpenAcc con GPU
-    set(ACC_GPU "-fast -acc=gpu -gpu=${CUDA_ARCHITECTURE} -Minfo=accel")
+    set(ACC_GPU "-mcmodel=medium -fast -acc=gpu -gpu=${CUDA_ARCHITECTURE} -Minfo=accel")
 else()
     message(STATUS "Using OpenAcc MULTICORE")
 
@@ -26,7 +26,7 @@ else()
     set(EXEC_NAME IXCHEL2D-multicore)
 
     # Banderas para utilizar OpenAcc con Multicore
-    set(ACC_MULTICORE "-fast -acc=multicore -Minfo=accel")
+    set(ACC_MULTICORE "-mcmodel=medium -fast -acc=multicore -Minfo=accel")
 endif()
 
 # Especificar el compilador de fortran a utilizar
