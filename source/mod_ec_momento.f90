@@ -415,7 +415,7 @@ contains
     !
     ! gamma_d
     !
-    gammai = gamma_momento(ii+1,jj)
+    gammad = gamma_momento(ii+1,jj)
     !
     ! distancias entre nodos contiguos
     !
@@ -805,7 +805,7 @@ contains
           !
           ! gamma_d
           !
-          gammai = gamma_momento(ii+1,jj)
+          gammad = gamma_momento(ii+1,jj)
           !
           ! distancias entre nodos contiguos
           !
