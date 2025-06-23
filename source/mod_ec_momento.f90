@@ -404,7 +404,7 @@ contains
     ! corresponde **
     gammad = ( gamma_momento(ii+1,jj) * gamma_momento(ii+1,jj-1) ) / &
          &(gamma_momento(ii+1,jj)*(1._DBL-feypo(jj-1))+gamma_momento(ii+1,jj-1)*feypo(jj-1))
-    gammai = ( gamma_momento(ii,jj+1) * gamma_momento(ii,jj) ) / &
+    gammai = ( gamma_momento(ii,jj) * gamma_momento(ii,jj-1) ) / &
          &(gamma_momento(ii,jj)*(1._DBL-feypo(jj-1))+gamma_momento(ii,jj-1)*feypo(jj-1))
     !
     gammas = gammai*gammad / (gammad * (1._DBL-fexpo(ii)) + gammai * fexpo(ii))         
@@ -592,8 +592,8 @@ contains
          &( gamma_momento(ii+1,jj) * (1._DBL-fexpo(ii))+gamma_momento(ii,jj)*fexpo(ii) )
     gamman = ( gamma_momento(ii+1,jj+1) * gamma_momento(ii,jj+1) ) / &
          &( gamma_momento(ii+1,jj+1) * (1._DBL-fexpo(ii))+gamma_momento(ii,jj+1)*fexpo(ii) )
-    gammad = ( gammas * gamman ) / &
-         &( gammas*(1._DBL-feypo(jj)) + gamman*feypo(jj) )
+    gammad = ( gamman * gammas ) / &
+         &( gamman*(1._DBL-feypo(jj)) + gammas*feypo(jj) )
     !
     ! gamma_i
     !
@@ -605,7 +605,7 @@ contains
     gamman = ( gamma_momento(ii,jj+1) * gamma_momento(ii-1,jj+1) ) / &
          &(gamma_momento(ii,jj+1)*(1._DBL-fexpo(ii-1))+gamma_momento(ii-1,jj+1)*fexpo(ii-1) )
     gammai = ( gammas * gamman ) / &
-         &( gammas*(1._DBL-feypo(jj)) + gamman*feypo(jj) )
+         &( gamman*(1._DBL-feypo(jj)) + gammas*feypo(jj) )
     !
     ! gamma_n 
     !
