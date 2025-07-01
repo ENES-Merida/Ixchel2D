@@ -773,19 +773,23 @@ PROGRAM IXCHEL2D
            !$acc parallel loop gang collapse(2) !async(stream1)
            do jj = 2, nj-1
               do ii = 2, mi-1
-                 u(ii,jj) = u(ii,jj)+deltayu(jj)*(corr_pres(ii,jj)-corr_pres(ii+1,jj))/au(ii,jj)
-                 v(ii,jj) = v(ii,jj)+deltaxv(ii)*(corr_pres(ii,jj)-corr_pres(ii,jj+1))/av(ii,jj)
+                 u(ii,jj) = u(ii,jj)+deltayu(jj)*&
+                      &(corr_pres(ii,jj)-corr_pres(ii+1,jj))/au(ii,jj)
+                 v(ii,jj) = v(ii,jj)+deltaxv(ii)*&
+                      &(corr_pres(ii,jj)-corr_pres(ii,jj+1))/av(ii,jj)
               end do
            end do
            !
            !$acc parallel loop vector !async(stream1)
            do ii = 2, mi-1
-              u(ii,nj) = u(ii,nj)+deltayu(nj)*(corr_pres(ii,nj)-corr_pres(ii+1,nj))/au(ii,nj)
+              u(ii,nj) = u(ii,nj)+deltayu(nj)*&
+                   &(corr_pres(ii,nj)-corr_pres(ii+1,nj))/au(ii,nj)
            end do
            !
            !$acc parallel loop vector !async(stream2)
            do jj = 2, nj-1
-              v(mi,jj) = v(mi,jj)+deltaxv(mi)*(corr_pres(mi,jj)-corr_pres(mi,jj+1))/av(mi,jj)
+              v(mi,jj) = v(mi,jj)+deltaxv(mi)*&
+                   &(corr_pres(mi,jj)-corr_pres(mi,jj+1))/av(mi,jj)
            end do
            !$acc wait
            !
