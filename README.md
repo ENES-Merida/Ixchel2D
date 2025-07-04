@@ -55,7 +55,7 @@ mkdir build && cd build
 
 Si desea ejecutar Ixchel2D con multicore:
 ```shell
-cmake ../source/ -DENABLE_GPU=OFF
+cmake ../source/ -DGPU=OFF
 make
 ```
 
@@ -71,7 +71,7 @@ El valor `ccXX` es la capacidad de cómputo de la GPU.
 
 Sabiendo la capacidad de cómputo de la GPU, ahora ejecutamos lo siguiente:
 ```shell
-cmake ../source/ -DENABLE_GPU=ON -DCOMPUTE_CAPABILITY=ccXX
+cmake ../source/ -DGPU=ON -DTARGET=ccXX
 make
 ```
 
