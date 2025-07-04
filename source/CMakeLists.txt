@@ -7,7 +7,7 @@ project(IXCHEL2D LANGUAGES Fortran)
 # Configuracion para usar gpu
 option(GPU "Enable GPU use" OFF)
 
-if(ENABLE_GPU)
+if(GPU)
     message(STATUS "Using OpenAcc GPU")
 
     # Arquitectura de GPU a utilizar
