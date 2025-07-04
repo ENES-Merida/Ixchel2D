@@ -49,7 +49,6 @@ set(SOURCE_FILES
     mod_postproceso.f90
     mod_residuos.f90
     mod_solucionador.f90
-    mod_variables.f90
     main.f90)
 
 # Creacion del ejecutable
