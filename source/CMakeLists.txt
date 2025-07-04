@@ -5,13 +5,13 @@ cmake_minimum_required(VERSION 3.22)
 project(IXCHEL2D LANGUAGES Fortran)
 
 # Configuracion para usar gpu
-option(ENABLE_GPU "Enable GPU use" OFF)
+option(GPU "Enable GPU use" OFF)
 
 if(ENABLE_GPU)
     message(STATUS "Using OpenAcc GPU")
 
     # Arquitectura de GPU a utilizar
-    set(CUDA_ARCHITECTURE ${COMPUTE_CAPABILITY})
+    set(CUDA_ARCHITECTURE ${TARGET})
     message(STATUS "CUDA Architecture: ${CUDA_ARCHITECTURE}")
 
     # Definir el nombre del ejecutable
