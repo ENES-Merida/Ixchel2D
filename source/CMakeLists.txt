@@ -33,7 +33,7 @@ endif()
 set(CMAKE_Fortran_COMPILER nvfortran)
 
 # Definir las banderas que va a utilizar el compilador
-if(ENABLE_GPU)
+if(GPU)
     set(CMAKE_Fortran_FLAGS ${ACC_GPU})
 else()
     set(CMAKE_Fortran_FLAGS ${ACC_MULTICORE})
