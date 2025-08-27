@@ -133,7 +133,7 @@ contains
          & )
     !
   end subroutine ini_frontera_uv
-  !
+    !
   !*******************************************************************
   !
   ! ensambla_corr_pres
@@ -142,12 +142,12 @@ contains
   ! para la correcci\'on de la presi\'on
   !
   !*******************************************************************
-  subroutine ensambla_corr_pres(deltaxpo,deltaypo,&
+  subroutine ensambla_corr_pres_x(deltaxpo,deltaypo,&
        &deltaxuo,deltayvo,&
        &u_o,v_o,b_o,&
        &corr_pres_o,rel_vo,&
-       &AI_o,AC_o,AD_o,Rx_o,BS_o,BC_o,BN_o,Ry_o,au_o,av_o,&
-       &ii,jj)
+       &AI_o,AC_o,AD_o,Rx_o,au_o,av_o,&
+       &jj,ii)
     implicit none
     !$acc routine
     !
@@ -182,7 +182,6 @@ contains
     ! de momento en, energ\'ia y la correcci\'on de la presi\'on **
     !
     real(kind=DBL), dimension(mi+1,nj+1), intent(out) :: AI_o, AC_o, AD_o, Rx_o
-    real(kind=DBL), dimension(nj+1,mi+1), intent(out) :: BS_o, BC_o, BN_o, Ry_o
     real(kind=DBL), dimension(mi,nj+1),   intent(in)  :: au_o
     real(kind=DBL), dimension(mi+1,nj),   intent(in)  :: av_o
     !
@@ -198,22 +197,10 @@ contains
     !
     real(kind=DBL) :: ui, ud, vs, vn
     real(kind=DBL) :: ai, ad, as, an
+    real(kind=DBL) :: BS, BN
     ! real(kind=DBL) :: di, dd, ds, dn
     !
     ! C\'alculo de los coeficientes
-    !
-    ! $acc loop gang
-    ! bucle_direccion_y: do jj = 2, nj
-    !------------------------
-    ! Condiciones de frontera
-    ! AC_o(1,jj) = 1._DBL
-    ! AD_o(1,jj) = 0._DBL
-    ! Rx_o(1,jj) = 0._DBL
-    !
-    ! Llenado de la matriz
-    !
-    ! $acc loop vector
-    ! bucle_direccion_x: do ii = 2, mi
     !
     ! Interpolaciones necesarias
     !
@@ -245,45 +232,127 @@ contains
     !
     AI_o(ii,jj) =-deltaypo(jj)*deltaypo(jj)/ai
     AD_o(ii,jj) =-deltaypo(jj)*deltaypo(jj)/ad
-    BS_o(jj,ii) =-deltaxpo(ii)*deltaxpo(ii)/as
-    BN_o(jj,ii) =-deltaxpo(ii)*deltaxpo(ii)/an
+    BS          =-deltaxpo(ii)*deltaxpo(ii)/as
+    BN          =-deltaxpo(ii)*deltaxpo(ii)/an
     AC_o(ii,jj) = ( -AI_o(ii,jj) - AD_o(ii,jj)-&
-         &BS_o(jj,ii) - BN_o(jj,ii) ) / rel_vo
-    BC_o(jj,ii) = AC_o(ii,jj)
+         &BS - BN ) / rel_vo
     !
     b_o(ii,jj)  = (ui-ud)*deltaypo(jj)+(vs-vn)*deltaxpo(ii)
     !
-    Rx_o(ii,jj) =-BS_o(jj,ii)*corr_pres_o(ii,jj-1)-&
-         &BN_o(jj,ii)*corr_pres_o(ii,jj+1)+&
+    Rx_o(ii,jj) =-BS*corr_pres_o(ii,jj-1)-&
+         &BN*corr_pres_o(ii,jj+1)+&
          b_o(ii,jj) + (1._DBL-rel_vo)*AC_o(ii,jj)*corr_pres_o(ii,jj)
-    Ry_o(jj,ii) =-AI_o(ii,jj)*corr_pres_o(ii-1,jj)-&
-         &AD_o(ii,jj)*corr_pres_o(ii+1,jj)+&
-         b_o(ii,jj) + (1._DBL-rel_vo)*BC_o(jj,ii)*corr_pres_o(ii,jj)
-
-    ! end do bucle_direccion_x
-    ! !
-    ! ! Condicion frontera
-    ! !
-    ! AI_o(mi+1,jj) = 0.0_DBL
-    ! AC_o(mi+1,jj) = 1.0_DBL
-    ! Rx_o(mi+1,jj) = 0.0_DBL
-
-    ! end do bucle_direccion_y
     !
-    ! Condiciones de frontera para la direcci\'on y
+  end subroutine ensambla_corr_pres_x
+  !
+  !*******************************************************************
+  !
+  ! ensambla_corr_pres
+  !
+  ! Subrutina que calcula los coeficientes de la matriz tridiagonal
+  ! para la correcci\'on de la presi\'on
+  !
+  !*******************************************************************
+  subroutine ensambla_corr_pres_y(deltaxpo,deltaypo,&
+       &deltaxuo,deltayvo,&
+       &u_o,v_o,&
+       &corr_pres_o,rel_vo,&
+       &BS_o,BC_o,BN_o,Ry_o,au_o,av_o,&
+       &ii,jj)
+    implicit none
+    !$acc routine
     !
-    ! bucle_direccionx: do ii = 2, mi
-    !    !***********************
-    !    !Condiciones de frontera
-    !    BC_o(1,ii)     = 1._DBL
-    !    BN_o(1,ii)     = 0.0_DBL
-    !    Ry_o(1,ii)     = 0.0_DBL
-    !    !
-    !    BC_o(nj+1,ii)  = 1._DBL
-    !    BS_o(nj+1,ii)  = 0.0_DBL
-    !    Ry_o(nj+1,ii)  = 0.0_DBL
-    ! end do bucle_direccionx
-  end subroutine ensambla_corr_pres
+    ! Tama\~no del volumen de control
+    !
+    real(kind=DBL), dimension(mi), intent(in) :: deltaxpo
+    real(kind=DBL), dimension(nj), intent(in) :: deltaypo
+    !
+    ! Distancia entre nodos contiguos de la malla de p en direcci\'on horizontal
+    !
+    real(kind=DBL), dimension(mi), intent(in) :: deltaxuo
+    !
+    ! Distancia entre nodos contiguos de la malla de p en direcci\'on vertical
+    !
+    real(kind=DBL), dimension(nj), intent(in) :: deltayvo
+    !
+    ! Velocidad, presi\'on, t\'ermino fuente b
+    !
+    real(kind=DBL), dimension(mi,nj+1),   intent(in)  :: u_o
+    real(kind=DBL), dimension(mi+1,nj),   intent(in)  :: v_o
+    real(kind=DBL), dimension(mi+1,nj+1), intent(in)  :: corr_pres_o
+    !
+    ! coeficiente de relajaci\'on
+    !
+    real(kind=DBL), intent(in) :: rel_vo
+    !
+    ! Coeficientes de las matrices
+    !
+    ! ** Estos coeficientes est\'an sobredimensionados para reducir el uso de memoria
+    ! en la gpu, los arreglos que se reciben en esta subrutina se usan para las ecs.
+    ! de momento en, energ\'ia y la correcci\'on de la presi\'on **
+    !
+    real(kind=DBL), dimension(nj+1,mi+1), intent(out) :: BS_o, BC_o, BN_o, Ry_o
+    real(kind=DBL), dimension(mi,nj+1),   intent(in)  :: au_o
+    real(kind=DBL), dimension(mi+1,nj),   intent(in)  :: av_o
+    !
+    ! \'Indice para recorrer la direcci\'on y
+    !
+    integer, intent(in) :: ii, jj
+    !
+    ! Variables auxiliares
+    !
+    ! integer :: ii, jj
+    !
+    ! Auxiliares de interpolaci\'on
+    !
+    real(kind=DBL) :: ui, ud, vs, vn
+    real(kind=DBL) :: ai, ad, as, an
+    real(kind=DBL) :: AI_o, AD_o
+    real(kind=DBL) :: b_o
+    !
+    ! Interpolaciones necesarias
+    !
+    ! u
+    !
+    ud = u_o(ii,jj)
+    ui = u_o(ii-1,jj)
+    !
+    ! v
+    !
+    vn = v_o(ii,jj)
+    vs = v_o(ii,jj-1)
+    !
+    ! coeficientes de la ecuaci\'on de momento
+    !
+    ai = au_o(ii-1,jj)
+    ad = au_o(ii,jj)
+    as = av_o(ii,jj-1)
+    an = av_o(ii,jj)
+    !
+    ! Tama\~no de los vol\'umenes de control para la velocidad u
+    !
+    ! delta_x = deltaxpo(ii)
+    ! delta_y = deltaypo(jj)
+    !
+    ! -------------------------
+    !
+    ! Coeficientes de la matriz
+    !
+    AI_o        =-deltaypo(jj)*deltaypo(jj)/ai
+    AD_o        =-deltaypo(jj)*deltaypo(jj)/ad
+    BS_o(jj,ii) =-deltaxpo(ii)*deltaxpo(ii)/as
+    BN_o(jj,ii) =-deltaxpo(ii)*deltaxpo(ii)/an
+    BC_o(jj,ii) = ( -AI_o - AD_o-&
+         &BS_o(jj,ii) - BN_o(jj,ii) ) / rel_vo
+    !
+    b_o = (ui-ud)*deltaypo(jj)+(vs-vn)*deltaxpo(ii)
+    !
+    Ry_o(jj,ii) =-AI_o*corr_pres_o(ii-1,jj)-&
+         &AD_o*corr_pres_o(ii+1,jj)+&
+         b_o + (1._DBL-rel_vo)*BC_o(jj,ii)*corr_pres_o(ii,jj)
+
+    !
+  end subroutine ensambla_corr_pres_y
   !  
   !*******************************************************************
   !

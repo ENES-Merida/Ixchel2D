@@ -37,7 +37,8 @@ PROGRAM IXCHEL2D
   !
   ! Rutinas de ensamblaje de la ec. de momento, correcci\'on de presi\'on y residuo
   !
-  use ec_momento, only : ensambla_velu, ensambla_velv, ensambla_corr_pres
+  use ec_momento, only : ensambla_velu, ensambla_velv
+  use ec_momento, only : ensambla_corr_pres_x, ensambla_corr_pres_y
   use ec_momento, only : residuo_u
   use ec_momento, only : ini_frontera_uv
   use ec_momento, only : cond_front_ua, cond_front_ub  
@@ -691,52 +692,83 @@ PROGRAM IXCHEL2D
                  AC(mi+1,jj) = 1.0_DBL
                  Rx(mi+1,jj) = 0.0_DBL
               end do
-              !------------------------------------------
+              !-----------------------------------------------
               !
-              ! Se ensambla la ecuaci\'on de la presi\'on
+              ! Se ensambla la ecuaci\'on de la presi\'on en y
+              !
+              !$acc parallel loop gang !async(stream2)
+              do ii = 2, mi
+                 !$acc loop vector
+                 do jj = 2, nj
+                    call ensambla_corr_pres_y(deltaxp,deltayp,&
+                         &deltaxu,deltayv,&
+                         &u,v,&
+                         &corr_pres,0.85_DBL,&
+                         &BS,BC,BN,Ry,au,av,&
+                         &ii,jj)
+                 end do
+              end do
+              !
+              !---------------------------------------------------
+              !
+              ! Soluci\'on de la correcci\'on de la presi\'on en y
+              !
+              !
+              !$acc parallel loop gang ! async(stream2)
+              solucion_presion_y: do ii = 2, mi
+
+                 call tridiagonal(BS(1:nj+1,ii),BC(1:nj+1,ii),BN(1:nj+1,ii),Ry(1:nj+1,ii),nj+1)
+  
+              end do solucion_presion_y
+              !$acc wait
+              !----------------------------------------------------
+              !
+              ! Actualizaci\'on del corrector de la presi\'on en y
+              !
+              !$acc parallel loop gang collapse(2) !async(stream1) wait(stream2)
+              do ii = 2, mi
+                 do jj = 1, nj+1
+                    corr_pres(ii,jj) = Ry(jj,ii)
+                 end do
+              end do
+              !$acc wait
+              !
+              !-----------------------------------------------
+              !
+              ! Se ensambla la ecuaci\'on de la presi\'on en x
               !
               !$acc parallel loop gang !async(stream2)
               do jj = 2, nj
                  !$acc loop vector
                  do ii = 2, mi
-                    call ensambla_corr_pres(deltaxp,deltayp,&
+                    call ensambla_corr_pres_x(deltaxp,deltayp,&
                          &deltaxu,deltayv,&
                          &u,v,b_o,&
                          &corr_pres,0.85_DBL,&
-                         &AI,AC,AD,Rx,BS,BC,BN,Ry,au,av,&
-                         &ii,jj)
+                         &AI,AC,AD,Rx,au,av,&
+                         &jj,ii)
                  end do
               end do
+              !---------------------------------------------------
               !
-              !----------------------------------------------
-              !
-              ! Soluci\'on de la correcci\'on de la presi\'on
-              !
-              !$acc parallel loop gang async(stream1) wait(stream2)
+              ! Soluci\'on de la correcci\'on de la presi\'on en x
+              !       
+              !$acc parallel loop gang !async(stream1) wait(stream2)
               solucion_presion_x: do jj = 2, nj
 
                  call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),Rx(1:mi+1,jj),mi+1)
-                 corr_pres(1,jj)    = Rx(1,jj)
-                 corr_pres(mi+1,jj) = Rx(mi+1,jj)
                  
               end do solucion_presion_x
-              !
-              !$acc parallel loop gang async(stream2)
-              solucion_presion_y: do ii = 2, mi
-
-                 call tridiagonal(BS(1:nj+1,ii),BC(1:nj+1,ii),BN(1:nj+1,ii),Ry(1:nj+1,ii),nj+1)
-                 corr_pres(ii,1)    = Ry(1,ii)
-                 corr_pres(ii,nj+1) = Ry(nj+1,ii)
-  
-              end do solucion_presion_y
               !$acc wait
               !
-              ! Actualizaci\'on del corrector de la presi\'on
+              !----------------------------------------------------
+              !
+              ! Actualizaci\'on del corrector de la presi\'on en x
               !
               !$acc parallel loop gang collapse(2) !async(stream1) wait(stream2)
               do jj = 2, nj
-                 do ii = 2, mi
-                    corr_pres(ii,jj) = 0.5_DBL*Rx(ii,jj)+0.5_DBL*Ry(jj,ii)
+                 do ii = 2, mi+1
+                    corr_pres(ii,jj) = Rx(ii,jj)
                  end do
               end do
               !$acc wait
