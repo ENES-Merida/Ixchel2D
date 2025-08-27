@@ -53,7 +53,8 @@ contains
     INTEGER          :: itermax, paq_itera, iter_simple_max, iter_ecuaci_max
     REAL(kind=DBL)   :: Ra,Pr,dt,Ri_1,rel_pres,rel_vel,rel_ener
     REAL(kind=DBL)   :: conv_u,conv_p,conv_t,conv_resi,conv_paso
-    CHARACTER(len=28):: entrada_u,entrada_v,entrada_tp,directorio
+    CHARACTER(len=28):: entrada_u,entrada_v,entrada_tp
+    CHARACTER(len=36):: directorio
     character(len=8) :: flujo_ini, tempe_ini
     !
     ! Se escribe la informaci\'on con la que se realiza la ejecuci\'on que
