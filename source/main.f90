@@ -73,6 +73,7 @@ PROGRAM IXCHEL2D
   ! 
   use postproceso, only  : nusselt_promedio_y, postproceso_vtk
   use postproceso, only  : postproceso_bin, entero_caracter
+  use postproceso, only  : postprocesa_parametros
   !
   ! Variables auxiliares para bucles y n\'umero de iteraciones
   !
@@ -88,7 +89,7 @@ PROGRAM IXCHEL2D
   !
   ! Variables para los archivos de la entrada de datos
   !
-  CHARACTER(len=28) :: entrada_u,entrada_v,entrada_tp
+  CHARACTER(len=28) :: entrada_u,entrada_v,entrada_tp, directorio
   character(len=7)  :: adimen
   !
   ! Variables para opciones de inicializaci\'on
@@ -210,7 +211,35 @@ PROGRAM IXCHEL2D
   Ri           = Ri_1
   Riy          = 0.0_DBL
   !
-  !----------------------------------------
+  !------------------------------------------------
+  !
+  ! Verificación de existencia de directorio
+  !
+  directorio = 'n'//trim(njc)//'m'//trim(mic)//'R'//trim(Rec)//'/info_entrada.out'
+  call postprocesa_parametros(&
+       &Ra,&
+       &Pr,&
+       &dt,&
+       &itermax,&
+       &paq_itera,&
+       &Ri_1,&
+       &rel_pres,&
+       &rel_vel,&
+       &rel_ener,&
+       &conv_u,&
+       &conv_t,&
+       &conv_p,&
+       &conv_resi,&
+       &conv_paso,&
+       &iter_simple_max,&
+       &iter_ecuaci_max,&
+       &entrada_u,&
+       &entrada_v,&
+       &entrada_tp,&
+       &flujo_ini,&
+       &tempe_ini,&
+       &directorio)
+  !-------------------------
   !
   !Selecci\'on de la adimensionalizaci\'on
   !
