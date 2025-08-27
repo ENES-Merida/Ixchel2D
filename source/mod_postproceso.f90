@@ -14,6 +14,80 @@ module postproceso
   !
 contains
   !
+  !************************************************************
+  !
+  ! postprocesa_parametros
+  !
+  ! Subrutina de postproceso que muestra los parámetros empleados
+  ! y verifica que el directorio esté creado
+  !
+  !************************************************************
+  !
+  subroutine postprocesa_parametros(&
+       &Ra,&
+       &Pr,&
+       &dt,&
+       &itermax,&
+       &paq_itera,&
+       &Ri_1,&
+       &rel_pres,&
+       &rel_vel,&
+       &rel_ener,&
+       &conv_u,&
+       &conv_t,&
+       &conv_p,&
+       &conv_resi,&
+       &conv_paso,&
+       &iter_simple_max,&
+       &iter_ecuaci_max,&
+       &entrada_u,&
+       &entrada_v,&
+       &entrada_tp,&
+       &flujo_ini,&
+       &tempe_ini,&
+       &directorio&
+       &)
+       !
+    use malla, only : mi, nj, DBL, mic, njc
+    implicit none
+    INTEGER          :: itermax, paq_itera, iter_simple_max, iter_ecuaci_max
+    REAL(kind=DBL)   :: Ra,Pr,dt,Ri_1,rel_pres,rel_vel,rel_ener
+    REAL(kind=DBL)   :: conv_u,conv_p,conv_t,conv_resi,conv_paso
+    CHARACTER(len=28):: entrada_u,entrada_v,entrada_tp,directorio
+    character(len=8) :: flujo_ini, tempe_ini
+    !
+    ! Se escribe la informaci\'on con la que se realiza la ejecuci\'on que
+    ! produce los archivos de salida en el directorio nxxxmxxxRxxx/
+    ! Esto ayuda a detectar errores de ejecuci\'on por la ausencia de este
+    ! directorio
+    !
+    OPEN(unit=10, file=directorio)
+      write (10,*) 'numero de Rayleigh                    ', Ra
+      write (10,*) 'numero de Prandtl                     ', Pr
+      write (10,*) 'incremento de tiempo                  ', dt
+      write (10,*) 'iteraciones maximas                   ', itermax
+      write (10,*) 'paquete de iteraciones                ', paq_itera
+      write (10,*) 'numero de Richardson                  ', Ri_1
+      write (10,*) 'relajacion de la presion              ', rel_pres
+      write (10,*) 'relajacion de la velocidad            ', rel_vel
+      write (10,*) 'relajacion de la temperatura          ', rel_ener
+      write (10,*) 'convergencia de la velocidad          ', conv_u
+      write (10,*) 'convergencia de la temperatura        ', conv_t
+      write (10,*) 'convergencia de la presion            ', conv_p
+      write (10,*) 'convergencia del residuo              ', conv_resi
+      write (10,*) 'convergencia del paso de tiempo       ', conv_paso
+      write (10,*) 'iteraciones maximas de SIMPLE         ', iter_simple_max
+      write (10,*) 'iteraciones maximas de las ecuaciones ', iter_ecuaci_max
+      write (10,*) 'archivo de entrada para u             ', entrada_u
+      write (10,*) 'archivo de entrada para v             ', entrada_v
+      write (10,*) 'archivo de entrada para t y p         ', entrada_tp
+      write (10,*) 'opcion de flujo inicial               ', flujo_ini
+      write (10,*) 'opcion de temperatura inicial         ', tempe_ini
+    CLOSE(unit=10)
+    !
+    !
+  end subroutine postprocesa_parametros
+  !
   !*******************************************************************
   !
   ! nusselt_promedio
