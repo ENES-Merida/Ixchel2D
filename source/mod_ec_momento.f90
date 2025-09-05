@@ -525,11 +525,11 @@ contains
          &DMAX1(0.0_DBL,(1._DBL-0.1_DBL*dabs(vn*dn/gamman))**5)+&
          &DMAX1(0.0_DBL,-vn*deltax))
 
-    AC_o(ii,jj) = ( -AI_o(ii,jj) - AD_o(ii,jj) - BS_o(jj,ii) - BN_o(jj,ii) -&
+    AC_o(ii,jj) = ( -AI_o(ii,jj) - AD_o(ii,jj) - BS_o - BN_o -&
          &deltax*deltay*fuente_lin_uo(ii,jj)+&
          &deltax*deltay/dt_o) / rel_vo
 
-    Rx_o(ii,jj) =-BS_o(jj,ii)*u_o(ii,jj-1) - BN_o(jj,ii)*u_o(ii,jj+1)-&
+    Rx_o(ii,jj) =-BS_o*u_o(ii,jj-1) - BN_o*u_o(ii,jj+1)-&
          &deltax*deltay*Ri_o(ii,jj)*temp_int+&
          &deltax*deltay*fuente_con_uo(ii,jj)+&
          &deltax*deltay*u_anto(ii,jj)/dt_o+&
@@ -548,12 +548,12 @@ contains
   ! para la velocidad u en direccion y
   !
   !*******************************************************************
-  subroutine ensambla_velu_x(deltaxuo,deltayuo,deltaxpo,&
+  subroutine ensambla_velu_y(deltaxuo,deltayuo,deltaxpo,&
        &deltayvo,fexpo,feypo,fexuo,gamma_momento,&
        &fuente_con_uo,fuente_lin_uo,&
        &u_o,u_anto,v_o,&
        &temp_o,pres_o,Ri_o,dt_o,rel_vo,&
-       &BS_o,BC_o,AN_o,Ry_o,au_o,&
+       &BS_o,BC_o,BN_o,Ry_o,&
        &jj,ii&
        &)
     implicit none
@@ -610,7 +610,6 @@ contains
     ! de momento, energ\'ia y la correcci\'on de la presi\'on **
     !
     real(kind=DBL), dimension(nj+1,mi+1), intent(out) :: BS_o, BC_o, BN_o, Ry_o
-    real(kind=DBL), dimension(mi,nj+1),   intent(out) :: au_o
     !
     ! Variables auxiliares
     !
@@ -711,11 +710,11 @@ contains
          &DMAX1(0.0_DBL,(1._DBL-0.1_DBL*dabs(vn*dn/gamman))**5)+&
          &DMAX1(0.0_DBL,-vn*deltax))
 
-    au_o(ii,jj) = AC_o(ii,jj) * rel_vo
+    BC_o(jj,ii) =  ( -AI_o - AD_o - BS_o(jj,ii) - BN_o(jj,ii) -&
+         &deltax*deltay*fuente_lin_uo(ii,jj)+&
+         &deltax*deltay/dt_o) / rel_vo
 
-    BC_o(jj,ii) = AC_o(ii,jj)
-
-    Ry_o(jj,ii) =-AI_o(ii,jj)*u_o(ii-1,jj)-AD_o(ii,jj)*u_o(ii+1,jj)-&
+    Ry_o(jj,ii) = -AI_o * u_o(ii-1,jj) - AD_o * u_o(ii+1,jj)-&
          &deltax*deltay*Ri_o(ii,jj)*temp_int+&
          &deltax*deltay*fuente_con_uo(ii,jj)+&
          &deltax*deltay*u_anto(ii,jj)/dt_o+&
@@ -894,11 +893,11 @@ contains
          &DMAX1(0.0_DBL,(1._DBL-0.1_DBL*dabs(vn*dn/gamman))**5)+&
          &DMAX1(0.0_DBL,-vn*deltaxvo(ii)))
 
-    AC_o(ii,jj) = ( -AI_o(ii,jj) - AD_o(ii,jj) - BS_o(jj,ii) - BN_o(jj,ii)-&
+    AC_o(ii,jj) = ( -AI_o(ii,jj) - AD_o(ii,jj) - BS_o - BN_o -&
          &deltaxvo(ii)*deltayvo(jj)*fuente_lin_vo(ii,jj)+&
          &deltaxvo(ii)*deltayvo(jj)/dt_o) / rel_vo
 
-    Rx_o(ii,jj) =-BS_o(jj,ii)*v_o(ii,jj-1) - BN_o(jj,ii)*v_o(ii,jj+1)-&
+    Rx_o(ii,jj) =-BS_o*v_o(ii,jj-1) - BN_o*v_o(ii,jj+1)-&
          &deltaxvo(ii)*deltayvo(jj)*Ri_o(ii,jj)*temp_int+&
          &deltaxvo(ii)*deltayvo(jj)*fuente_con_vo(ii,jj)+&
          &deltaxvo(ii)*deltayvo(jj)*v_anto(ii,jj)/dt_o+&
@@ -928,8 +927,8 @@ contains
        &fuente_con_vo,fuente_lin_vo,&
        &v_o,v_anto,u_o,&
        &temp_o,pres_o,Ri_o,dt_o,rel_vo,&
-       &BS_o,BC_o,BN_o,Ry_o,av_o,&
-       &ii,jj&
+       &BS_o,BC_o,BN_o,Ry_o,&
+       &jj,ii&
        &)
     !$acc routine
     !
@@ -981,7 +980,6 @@ contains
     ! de momento, energ\'ia y la correcci\'on de la presi\'on **
     !
     real(kind=DBL), dimension(nj+1,mi+1), intent(out) :: BS_o, BC_o, BN_o, Ry_o
-    real(kind=DBL), dimension(mi+1,nj),   intent(out) :: av_o
     ! !
     ! ! \'Indice para recorrer la direcci\'on y
     ! !
@@ -1083,11 +1081,11 @@ contains
          &DMAX1(0.0_DBL,(1._DBL-0.1_DBL*dabs(vn*dn/gamman))**5)+&
          &DMAX1(0.0_DBL,-vn*deltaxvo(ii)))
 
-    av_o(ii,jj) = AC_o(ii,jj) * rel_vo
+    BC_o(jj,ii) = (-AI_o - AD_o - BS_o(jj,ii) - BN_o(jj,ii) -&
+               &deltaxvo(ii)*deltayvo(jj)*fuente_lin_vo(ii,jj)+&
+               &deltaxvo(ii)*deltayvo(jj)/dt_o) / rel_vo
 
-    BC_o(jj,ii) = AC_o(ii,jj)
-
-    Ry_o(jj,ii) =-AI_o(ii,jj)*v_o(ii-1,jj)-AD_o(ii,jj)*v_o(ii+1,jj)-&
+    Ry_o(jj,ii) =-AI_o*v_o(ii-1,jj)-AD_o*v_o(ii+1,jj)-&
          &deltaxvo(ii)*deltayvo(jj)*Ri_o(ii,jj)*temp_int+&
          &deltaxvo(ii)*deltayvo(jj)*fuente_con_vo(ii,jj)+&
          &deltaxvo(ii)*deltayvo(jj)*v_anto(ii,jj)/dt_o+&

@@ -290,7 +290,7 @@ contains
        &temp_o,temp_anto,dt_o,&
        &rel_ener,placa_mino,placa_maxo,&
        &BS_o,BC_o,BN_o,Ry_o,&
-       &ii,jj&
+       &jj,ii&
        &)
     implicit none
     !$acc routine
@@ -424,8 +424,10 @@ contains
     BN_o(jj,ii) =-(gamman*deltaxpo(ii)/dn*&
          &DMAX1(0.0_DBL,(1._DBL-0.1_DBL*dabs(vn*dn/gamman))**5)+&
          &DMAX1(0.0_DBL,-vn*deltaxpo(ii)))
-    !BC_o(jj,ii) = AC_o(ii,jj)
-    Ry_o(jj,ii) =-AI_o*temp_o - AD_o*temp_o+&
+    BC_o(jj,ii) = ( -AI_o - AD_o - BS_o(jj,ii) - BN_o(jj,ii)-&
+         &deltaxpo(ii)*deltaypo(jj)*fuente_lin_to(ii,jj) +&
+         &deltaxpo(ii)*deltaypo(jj)/dt_o ) / rel_ener
+    Ry_o(jj,ii) =-AI_o*temp_o(ii-1,jj) - AD_o*temp_o(ii+1,jj)+&
          &deltaxpo(ii)*deltaypo(jj)*fuente_con_to(ii,jj) +&
          &deltaxpo(ii)*deltaypo(jj)*temp_anto(ii,jj)/dt_o+&
          &BC_o(jj,ii)*(1._DBL-rel_ener)*temp_o(ii,jj)

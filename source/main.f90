@@ -417,23 +417,22 @@ PROGRAM IXCHEL2D
               ! Llenado de la matriz
               !
               !$acc parallel loop gang !async(stream2)
-              bucle_direccion_y: do jj = 2, nj
+              bucle_uy_direccion_y: do jj = 2, nj
                  !
                  ! Llenado de la matriz
                  !
                  !$acc loop vector
-                 bucle_direccion_x: do ii = 2, mi-1
+                 bucle_uy_direccion_x: do ii = 2, mi-1
                     call ensambla_velu_y(deltaxu,deltayu,deltaxp,&
                          &deltayv,fexp,feyp,fexu,gamma_momen,&
                          &fuente_con_u,fuente_lin_u,&
                          &u,u_ant,v,&
                          &temp,pres,Ri,dt,rel_vel,&
-                         &AI,AC,AD,Rx,BS,BC,BN,Ry,au,&
-                         &ii,jj&
+                         &BS,BC,BN,Ry,&
+                         &jj,ii&
                          &)
-                    ! $acc end parallel
-                 end do bucle_direccion_x
-              end do bucle_direccion_y
+                 end do bucle_uy_direccion_x
+              end do bucle_uy_direccion_y
               !------------------------------------------
               !
               ! Se ensambla la ecuaci\'on de momento en u en direcci\'on x
@@ -443,23 +442,23 @@ PROGRAM IXCHEL2D
               ! Llenado de la matriz
               !
               !$acc parallel loop gang !async(stream2)
-              bucle_direccion_y: do jj = 2, nj
+              bucle_ux_direccion_y: do jj = 2, nj
                  !
                  ! Llenado de la matriz
                  !
                  !$acc loop vector
-                 bucle_direccion_x: do ii = 2, mi-1
+                 bucle_ux_direccion_x: do ii = 2, mi-1
                     call ensambla_velu_x(deltaxu,deltayu,deltaxp,&
                          &deltayv,fexp,feyp,fexu,gamma_momen,&
                          &fuente_con_u,fuente_lin_u,&
                          &u,u_ant,v,&
                          &temp,pres,Ri,dt,rel_vel,&
-                         &AI,AC,AD,Rx,BS,BC,BN,Ry,au,&
+                         &AI,AC,AD,Rx,au,&
                          &ii,jj&
                          &)
                     ! $acc end parallel
-                 end do bucle_direccion_x
-              end do bucle_direccion_y
+                 end do bucle_ux_direccion_x
+              end do bucle_ux_direccion_y
               !
               ! Condiciones de frontera para u 
               !
@@ -550,8 +549,8 @@ PROGRAM IXCHEL2D
                          &fuente_con_v,fuente_lin_v,&
                          &v,v_ant,u,&
                          &temp,pres,Riy,dt,rel_vel,&
-                         &AI,AC,AD,Rx,BS,BC,BN,Ry,av,&
-                         &ii,jj&
+                         &BS,BC,BN,Ry,&
+                         &jj,ii&
                          &)
                  end do
               end do
@@ -570,7 +569,7 @@ PROGRAM IXCHEL2D
                          &fuente_con_v,fuente_lin_v,&
                          &v,v_ant,u,&
                          &temp,pres,Riy,dt,rel_vel,&
-                         &AI,AC,AD,Rx,BS,BC,BN,Ry,av,&
+                         &AI,AC,AD,Rx,av,&
                          &ii,jj&
                          &)
                  end do
@@ -970,7 +969,8 @@ PROGRAM IXCHEL2D
                          &temp,temp_ant,dt,&
                          &rel_ener,placa_min,placa_max,&
                          &BS,BC,BN,Ry,&
-                         &ii,jj)
+                         &jj,ii&
+                         &)
                  end do
               end do
               !
@@ -1003,7 +1003,8 @@ PROGRAM IXCHEL2D
                          &temp,temp_ant,dt,&
                          &rel_ener,placa_min,placa_max,&
                          &AI,AC,AD,Rx,&
-                         &ii,jj)
+                         &ii,jj&
+                         &)
                  end do
               end do
               !
