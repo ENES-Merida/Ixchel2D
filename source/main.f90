@@ -37,7 +37,8 @@ PROGRAM IXCHEL2D
   !
   ! Rutinas de ensamblaje de la ec. de momento, correcci\'on de presi\'on y residuo
   !
-  use ec_momento, only : ensambla_velu, ensambla_velv
+  use ec_momento, only : ensambla_velu_x, ensambla_velu_y
+  use ec_momento, only : ensambla_velv_x, ensambla_velv_y
   use ec_momento, only : ensambla_corr_pres_x, ensambla_corr_pres_y
   use ec_momento, only : residuo_u
   use ec_momento, only : ini_frontera_uv
@@ -60,7 +61,7 @@ PROGRAM IXCHEL2D
   ! 
   ! Rutina de ensamblaje de la ec. de energ\'ia
   !
-  use ec_energia, only : ensambla_energia
+  use ec_energia, only : ensambla_energia_x, ensambla_energia_y
   !
   ! Rutina que determina viscosidades para fronteras inmersas
   !
@@ -409,7 +410,7 @@ PROGRAM IXCHEL2D
               !
               !------------------------------------------
               !
-              ! Se ensambla la ecuaci\'on de momento en u
+              ! Se ensambla la ecuaci\'on de momento en u en direcci\'on y´
               !
               ! !$acc parallel !async(stream2)
               !
@@ -422,7 +423,33 @@ PROGRAM IXCHEL2D
                  !
                  !$acc loop vector
                  bucle_direccion_x: do ii = 2, mi-1
-                    call ensambla_velu(deltaxu,deltayu,deltaxp,&
+                    call ensambla_velu_y(deltaxu,deltayu,deltaxp,&
+                         &deltayv,fexp,feyp,fexu,gamma_momen,&
+                         &fuente_con_u,fuente_lin_u,&
+                         &u,u_ant,v,&
+                         &temp,pres,Ri,dt,rel_vel,&
+                         &AI,AC,AD,Rx,BS,BC,BN,Ry,au,&
+                         &ii,jj&
+                         &)
+                    ! $acc end parallel
+                 end do bucle_direccion_x
+              end do bucle_direccion_y
+              !------------------------------------------
+              !
+              ! Se ensambla la ecuaci\'on de momento en u en direcci\'on x
+              !
+              ! !$acc parallel !async(stream2)
+              !
+              ! Llenado de la matriz
+              !
+              !$acc parallel loop gang !async(stream2)
+              bucle_direccion_y: do jj = 2, nj
+                 !
+                 ! Llenado de la matriz
+                 !
+                 !$acc loop vector
+                 bucle_direccion_x: do ii = 2, mi-1
+                    call ensambla_velu_x(deltaxu,deltayu,deltaxp,&
                          &deltayv,fexp,feyp,fexu,gamma_momen,&
                          &fuente_con_u,fuente_lin_u,&
                          &u,u_ant,v,&
@@ -512,13 +539,13 @@ PROGRAM IXCHEL2D
               !
               !---------------------------
               !
-              ! Se ensambla la velocidad v
+              ! Se ensambla la velocidad v en direcci\'on y
               !
               !$acc parallel loop gang !async(stream2)
               do jj = 2, nj-1
                  !$acc loop vector
                  do ii = 2, mi
-                    call ensambla_velv(deltaxv,deltayv,deltaxu,&
+                    call ensambla_velv_y(deltaxv,deltayv,deltaxu,&
                          &deltayp,fexp,feyp,feyv,gamma_momen,&
                          &fuente_con_v,fuente_lin_v,&
                          &v,v_ant,u,&
@@ -530,6 +557,25 @@ PROGRAM IXCHEL2D
               end do
               ! $acc end parallel
               !
+              !---------------------------
+              !
+              ! Se ensambla la velocidad v en direcci\'on x
+              !
+              !$acc parallel loop gang !async(stream2)
+              do jj = 2, nj-1
+                 !$acc loop vector
+                 do ii = 2, mi
+                    call ensambla_velv_x(deltaxv,deltayv,deltaxu,&
+                         &deltayp,fexp,feyp,feyv,gamma_momen,&
+                         &fuente_con_v,fuente_lin_v,&
+                         &v,v_ant,u,&
+                         &temp,pres,Riy,dt,rel_vel,&
+                         &AI,AC,AD,Rx,BS,BC,BN,Ry,av,&
+                         &ii,jj&
+                         &)
+                 end do
+              end do
+              ! $acc end parallel
               !
               ! Condiciones de frontera para v
               !
@@ -911,35 +957,26 @@ PROGRAM IXCHEL2D
               !
               !------------------------------------------
               !
-              ! Se ensambla la ecuaci\'on de la energ\'ia
+              ! Se ensambla la ecuaci\'on de la energ\'ia en y
               !
               !$acc parallel loop gang !async(stream1)
               do jj = 2, nj
                  !$acc loop vector
                  do ii = 2, mi
-                    call ensambla_energia(deltaxp,deltayp,&
+                    call ensambla_energia_y(deltaxp,deltayp,&
                          &deltaxu,deltayv,fexu,feyv,gamma_energ,&
                          &fuente_con_t,fuente_lin_t,&
                          &u,v,&
                          &temp,temp_ant,dt,&
                          &rel_ener,placa_min,placa_max,&
-                         &AI,AC,AD,Rx,BS,BC,BN,Ry,&
+                         &BS,BC,BN,Ry,&
                          &ii,jj)
                  end do
               end do
               !
               !---------------------------------------------
               !
-              ! Soluci\'on de la ecuaci\'on de la energ\'ia
-              !
-              !$acc parallel loop gang async(stream2) wait(stream1)
-              solucion_energia_x: do jj = 2, nj
-                 
-                 call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),Rx(1:mi+1,jj),mi+1)
-                 temp(1,jj)    = Rx(1,jj)
-                 temp(mi+1,jj) = Rx(mi+1,jj)
-
-              end do solucion_energia_x
+              ! Soluci\'on de la ecuaci\'on de la energ\'ia en y
               !
               !$acc parallel loop gang async(stream1) 
               solucion_energia_y: do ii = 2, mi
@@ -951,13 +988,38 @@ PROGRAM IXCHEL2D
               end do solucion_energia_y
               !$acc wait
               !
-              !$acc parallel loop gang collapse(2) !async(stream1) wait(stream2)
+              !------------------------------------------
+              !
+              ! Se ensambla la ecuaci\'on de la energ\'ia en x
+              !
+              !$acc parallel loop gang !async(stream1)
               do jj = 2, nj
+                 !$acc loop vector
                  do ii = 2, mi
-                    temp(ii,jj) = 0.5_DBL*Rx(ii,jj)+0.5_DBL*Ry(jj,ii)
+                    call ensambla_energia_x(deltaxp,deltayp,&
+                         &deltaxu,deltayv,fexu,feyv,gamma_energ,&
+                         &fuente_con_t,fuente_lin_t,&
+                         &u,v,&
+                         &temp,temp_ant,dt,&
+                         &rel_ener,placa_min,placa_max,&
+                         &AI,AC,AD,Rx,&
+                         &ii,jj)
                  end do
               end do
-              !$acc wait
+              !
+              !---------------------------------------------
+              !
+              ! Soluci\'on de la ecuaci\'on de la energ\'ia en x
+              !
+              !$acc parallel loop gang async(stream2) wait(stream1)
+              solucion_energia_x: do jj = 2, nj
+
+                 call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),Rx(1:mi+1,jj),mi+1)
+                 temp(1,jj)    = Rx(1,jj)
+                 temp(mi+1,jj) = Rx(mi+1,jj)
+
+              end do solucion_energia_x
+              !
               !
               ! error de la ecuaci\'on de la energ\'ia
               !
@@ -970,6 +1032,7 @@ PROGRAM IXCHEL2D
                  end do
               end do calculo_diferencias_dtemp
               error = sqrt(error)
+              !
               !
               !------------------------------------------
               !
