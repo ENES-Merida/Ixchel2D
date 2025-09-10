@@ -355,10 +355,10 @@ PROGRAM IXCHEL2D
      !$acc &         pres(1:mi+1,1:nj+1),temp(1:mi+1,1:nj+1),                  &
      !$acc &         corr_pres(1:mi+1,1:nj+1),                                 &
      !$acc &         u_ant(1:mi,1:nj+1),v_ant(1:mi+1,1:nj),                    &
-     !$acc &         temp_ant(1:mi+1,1:nj+1)                                   &
+     !$acc &         temp_ant(1:mi+1,1:nj+1),                                  &
+     !$acc &         Resu(1:mi,1:nj+1)                                         &
      !$acc &         )&     
      !$acc & copyin(&
-     !$acc &        Resu(1:mi,1:nj+1),                                         &
      !$acc &        tiempo_inicial,                                            &
      !$acc &        au(1:mi,1:nj+1),av(1:mi+1,1:nj),b_o(1:mi+1,1:nj+1),        &
      !$acc &        gamma_momen(1:mi+1,1:nj+1),gamma_energ(1:mi+1,1:nj+1),     &
@@ -613,7 +613,6 @@ PROGRAM IXCHEL2D
 
                  call tridiagonal(BS(1:nj,ii),BC(1:nj,ii),BN(1:nj,ii),Ry(1:nj,ii),nj)
                 
-
               end do solucion_momento_vy
               !$acc wait
               !----------------------------------
@@ -622,7 +621,7 @@ PROGRAM IXCHEL2D
               !
               !$acc parallel loop gang collapse(2) !async(stream1) wait(stream2)
               do ii = 2, mi
-                 do jj = 1, nj+1
+                 do jj = 1, nj
                     v(ii,jj) = Ry(jj,ii)
                  end do
               end do
@@ -795,7 +794,7 @@ PROGRAM IXCHEL2D
                     call ensambla_corr_pres_y(deltaxp,deltayp,&
                          &deltaxu,deltayv,&
                          &u,v,&
-                         &corr_pres,0.85_DBL,&
+                         &corr_pres,rel_pres,&
                          &BS,BC,BN,Ry,au,av,&
                          &ii,jj)
                  end do
@@ -809,7 +808,8 @@ PROGRAM IXCHEL2D
               !$acc parallel loop gang ! async(stream2)
               solucion_presion_y: do ii = 2, mi
 
-                 call tridiagonal(BS(1:nj+1,ii),BC(1:nj+1,ii),BN(1:nj+1,ii),Ry(1:nj+1,ii),nj+1)
+                 call tridiagonal(BS(1:nj+1,ii),BC(1:nj+1,ii),BN(1:nj+1,ii),&
+                      &Ry(1:nj+1,ii),nj+1)
   
               end do solucion_presion_y
               !$acc wait
@@ -836,7 +836,7 @@ PROGRAM IXCHEL2D
                     call ensambla_corr_pres_x(deltaxp,deltayp,&
                          &deltaxu,deltayv,&
                          &u,v,b_o,&
-                         &corr_pres,0.85_DBL,&
+                         &corr_pres,rel_pres,&
                          &AI,AC,AD,Rx,au,av,&
                          &jj,ii)
                  end do
@@ -848,7 +848,8 @@ PROGRAM IXCHEL2D
               !$acc parallel loop gang !async(stream1) wait(stream2)
               solucion_presion_x: do jj = 2, nj
 
-                 call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),Rx(1:mi+1,jj),mi+1)
+                 call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),&
+                      &Rx(1:mi+1,jj),mi+1)
                  
               end do solucion_presion_x
               !$acc wait
@@ -859,7 +860,7 @@ PROGRAM IXCHEL2D
               !
               !$acc parallel loop gang collapse(2) !async(stream1) wait(stream2)
               do jj = 2, nj
-                 do ii = 2, mi+1
+                 do ii = 1, mi+1
                     corr_pres(ii,jj) = Rx(ii,jj)
                  end do
               end do
@@ -966,6 +967,11 @@ PROGRAM IXCHEL2D
               !
               ! Condiciones de frontera
               !
+              !-----------------------------------------------
+              !
+              ! Region paralela para imponer las cond. de front.
+              ! en la GPU
+              ! 
               !------------
               ! lado b
               !
@@ -1011,7 +1017,8 @@ PROGRAM IXCHEL2D
               !$acc parallel loop gang !async(stream1)
               solucion_energia_y: do ii = 2, mi
 
-                 call tridiagonal(BS(1:nj+1,ii),BC(1:nj+1,ii),BN(1:nj+1,ii),Ry(1:nj+1,ii),nj+1)
+                 call tridiagonal(BS(1:nj+1,ii),BC(1:nj+1,ii),BN(1:nj+1,ii),&
+                      &Ry(1:nj+1,ii),nj+1)
 
               end do solucion_energia_y
               !$acc wait
@@ -1027,28 +1034,7 @@ PROGRAM IXCHEL2D
                  end do
               end do
               !$acc wait
-              !------------------------------------------
               !
-              ! Condiciones de frontera
-              !
-              !------------
-              !
-              ! lado a
-              !
-              !$acc parallel
-              call impone_cond_frontera(cond_front_ta,&
-                   & AI,AC,AD,Rx, &
-                   & mi+1,nj+1,   &
-                   & mi+1,nj+1)
-              !-----------------------------------------------
-              !
-              ! lado c
-              !
-              call impone_cond_frontera(cond_front_tc,&
-                   & AI,AC,AD,Rx, &
-                   & mi+1,nj+1,   &
-                   & mi+1,nj+1)
-              !$acc end parallel
               !-----------------------------------------------
               !
               ! Se ensambla la ecuaci\'on de la energ\'ia en x
@@ -1069,6 +1055,50 @@ PROGRAM IXCHEL2D
                  end do
               end do
               !
+              !------------------------------------------
+              !
+              ! Condiciones de frontera
+              !
+              !------------------------------------------
+              !
+              ! Regi\'on paralela para imponer las
+              ! condiciones de frontera en la GPU
+              !
+              !------------
+              !
+              ! lado a
+              !
+              !$acc parallel
+              call impone_cond_frontera(cond_front_ta,&
+                   & AI,AC,AD,Rx, &
+                   & mi+1,nj+1,   &
+                   & mi+1,nj+1)
+              !-----------------------------------------------
+              !
+              ! lado c
+              !
+              call impone_cond_frontera(cond_front_tc,&
+                   & AI,AC,AD,Rx, &
+                   & mi+1,nj+1,   &
+                   & mi+1,nj+1)
+              !$acc end parallel
+              !
+              ! lado a
+              !
+              !$acc parallel
+              call impone_cond_frontera(cond_front_ta,&
+                   & AI,AC,AD,Rx, &
+                   & mi+1,nj+1,   &
+                   & mi+1,nj+1)
+              !-----------------------------------------------
+              !
+              ! lado c
+              !
+              call impone_cond_frontera(cond_front_tc,&
+                   & AI,AC,AD,Rx, &
+                   & mi+1,nj+1,   &
+                   & mi+1,nj+1)
+              !$acc end parallel
               !---------------------------------------------
               !
               ! Soluci\'on de la ecuaci\'on de la energ\'ia en x
@@ -1076,7 +1106,8 @@ PROGRAM IXCHEL2D
               !$acc parallel loop gang !async(stream2) wait(stream1)
               solucion_energia_x: do jj = 2, nj
 
-                 call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),Rx(1:mi+1,jj),mi+1)
+                 call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),&
+                      &Rx(1:mi+1,jj),mi+1)
 
               end do solucion_energia_x
               !
@@ -1136,15 +1167,25 @@ PROGRAM IXCHEL2D
            !--------------------------------------------
            !--------------------------------------------
            !
-           !$acc parallel !async(stream1)
-           call residuo_u(deltaxu,deltayu,deltaxp,&
-                &deltayv,fexp,feyp,fexu,gamma_momen,&
-                &fuente_con_u,fuente_lin_u,&
-                &u,u_ant,v,&
-                &temp,pres,Ri,dt,rel_vel,&
-                &Resu&
-                &)
-           !$acc end parallel
+           !$acc parallel loop gang
+           bucle_residuo_direccion_y: do jj = 2, nj
+              !
+              ! Llenado de la matriz
+              !
+              !$acc loop vector
+              bucle_residuo_direccion_x: do ii = 2, mi-1
+                 !
+                 call residuo_u(deltaxu,deltayu,deltaxp,&
+                      &deltayv,fexp,feyp,fexu,gamma_momen,&
+                      &fuente_con_u,fuente_lin_u,&
+                      &u,u_ant,v,&
+                      &temp,pres,Ri,dt,rel_vel,&
+                      &Resu,&
+                      &ii,jj)
+              end do bucle_residuo_direccion_x
+              !
+           end do bucle_residuo_direccion_y
+           !$acc wait
            !
            !--------------------------------
            !
