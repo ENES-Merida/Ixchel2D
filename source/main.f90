@@ -400,21 +400,19 @@ PROGRAM IXCHEL2D
            !-------------------------------------------           
            ecuacion_momento: do
               !
-              !$acc parallel loop gang collapse(2) !async(stream1)
-              inicializacion_fu: do jj=1, nj
+              !$acc parallel loop gang collapse(2)
+              inicializacion_fu: do jj=1, nj+1
                  do ii = 1, mi
                     fu(ii,jj) = u(ii,jj)
-                    fv(ii,jj) = v(ii,jj)
                  end do
               end do inicializacion_fu
               !
               !------------------------------------------
               !
-              ! Se ensambla la ecuaci\'on de momento en u en direcci\'on y´
+              ! Se ensambla la ecuaci\'on de momento
+              ! para u en direcci\'on y´
               !
-              ! !$acc parallel !async(stream2)
-              !
-              ! Llenado de la matriz
+              !---------------------------------------
               !
               !$acc parallel loop gang !async(stream2)
               bucle_uy_direccion_y: do jj = 2, nj
@@ -433,13 +431,60 @@ PROGRAM IXCHEL2D
                          &)
                  end do bucle_uy_direccion_x
               end do bucle_uy_direccion_y
+              !
+              ! Condiciones de frontera para u 
+              !
+              !-------------------------------------------------
+              !
+              ! Region paralela para imponer las cond. de front.
+              ! en la GPU
+              !
+              !$acc parallel
+              !-----------------------------------------------
+              !
+              ! lado b
+              !
+              call impone_cond_frontera(cond_front_ub,&
+                   & BS,BC,BN,Ry, &
+                   & nj+1,mi+1,   &
+                   & mi,nj+1,     &
+                   & au )
+              !-----------------------------------------------
+              !
+              ! lado d
+              !
+              call impone_cond_frontera(cond_front_ud,&
+                   & BS,BC,BN,Ry, &
+                   & nj+1,mi+1,   &
+                   & mi,nj+1,     &
+                   & au )
+              !$acc end parallel
+              !
+              !$acc parallel loop gang           
+              solucion_momento_uy: do ii = 2, mi-1
+                 
+                 call tridiagonal(BS(1:nj+1,ii),BC(1:nj+1,ii),BN(1:nj+1,ii),&
+                      &Ry(1:nj+1,ii),nj+1)
+
+              end do solucion_momento_uy
+              !$acc wait
+              !
+              !----------------------------------
+              !
+              ! Actualizaci\'on de la velocidad u
+              !
+              !$acc parallel loop gang collapse(2)
+              do ii = 2, mi-1
+                 do jj = 1, nj+1
+                    u(ii,jj) = Ry(jj,ii)
+                 end do
+              end do
+              !$acc wait
+              !              
               !------------------------------------------
               !
-              ! Se ensambla la ecuaci\'on de momento en u en direcci\'on x
-              !
-              ! !$acc parallel !async(stream2)
-              !
-              ! Llenado de la matriz
+              ! Se ensambla la ecuaci\'on de momento
+              ! para u en direcci\'on x
               !
               !$acc parallel loop gang !async(stream2)
               bucle_ux_direccion_y: do jj = 2, nj
@@ -456,13 +501,15 @@ PROGRAM IXCHEL2D
                          &AI,AC,AD,Rx,au,&
                          &ii,jj&
                          &)
-                    ! $acc end parallel
                  end do bucle_ux_direccion_x
               end do bucle_ux_direccion_y
               !
               ! Condiciones de frontera para u 
               !
-              !-----------------------------------------------
+              !-------------------------------------------------
+              !
+              ! Region paralela para imponer las cond. de front.
+              ! en la GPU
               !
               ! lado a
               !
@@ -472,31 +519,14 @@ PROGRAM IXCHEL2D
                    & mi+1,nj+1,   &
                    & mi,nj+1,     &
                    & au )
-              !-----------------------------------------------
               !
-              ! lado b
-              !
-              call impone_cond_frontera(cond_front_ub,&
-                   & BS,BC,BN,Ry, &
-                   & nj+1,mi+1,   &
-                   & mi,nj+1,     &
-                   & au )          
-              !-----------------------------------------------
+              !-------------------------------------
               !
               ! lado c
               !
               call impone_cond_frontera(cond_front_uc,&
                    & AI,AC,AD,Rx, &
                    & mi+1,nj+1,   &
-                   & mi,nj+1,     &
-                   & au )                   
-              !-----------------------------------------------
-              !
-              ! lado d
-              !
-              call impone_cond_frontera(cond_front_ud,&
-                   & BS,BC,BN,Ry, &
-                   & nj+1,mi+1,   &
                    & mi,nj+1,     &
                    & au )
               !$acc end parallel
@@ -505,41 +535,35 @@ PROGRAM IXCHEL2D
               !
               ! Soluci\'on del sistema de ecuaciones
               !
-              !$acc parallel loop gang async(stream1) !wait(stream2)
+              !$acc parallel loop gang
               solucion_momento_ux: do jj = 2, nj
                  
                  call tridiagonal(AI(1:mi,jj),AC(1:mi,jj),AD(1:mi,jj),Rx(1:mi,jj),mi)
-                 u(1, jj) = Rx(1,jj)
-                 u(mi,jj) = Rx(mi,jj)
                  
               end do solucion_momento_ux
-              !
-              !$acc parallel loop gang async(stream2)            
-              solucion_momento_uy: do ii = 2, mi-1
-                 
-                 call tridiagonal(BS(1:nj+1,ii),BC(1:nj+1,ii),BN(1:nj+1,ii),Ry(1:nj+1,ii),nj+1)
-                 u(ii,1)    = Ry(1,ii)
-                 u(ii,nj+1) = Ry(nj+1,ii)
-
-              end do solucion_momento_uy
-              !$acc wait
-              !
               !----------------------------------
               !
               ! Actualizaci\'on de la velocidad u
               !
               !$acc parallel loop gang collapse(2) !async(stream2) wait(stream1)
               do jj = 2, nj
-                 do ii = 2, mi-1
-                    u(ii,jj) = 0.5_DBL*Rx(ii,jj)+0.5_DBL*Ry(jj,ii)
+                 do ii = 1, mi
+                    u(ii,jj) = Rx(ii,jj)
                  end do
               end do
               !$acc wait
               !
-              !---------------------------
+              !$acc parallel loop gang collapse(2)
+              inicializacion_fv: do jj=1, nj
+                 do ii = 1, mi+1
+                    fv(ii,jj) = v(ii,jj)
+                 end do
+              end do inicializacion_fv
+              !---------------------------------------------
               !
               ! Se ensambla la velocidad v en direcci\'on y
               !
+              !---------------------------------------------
               !$acc parallel loop gang !async(stream2)
               do jj = 2, nj-1
                  !$acc loop vector
@@ -554,7 +578,55 @@ PROGRAM IXCHEL2D
                          &)
                  end do
               end do
-              ! $acc end parallel
+              !
+              ! Condiciones de frontera para v
+              !
+              !-------------------------------------------------
+              !
+              ! Region paralela para imponer las cond. de front.
+              ! en la GPU
+              !              
+              !
+              ! lado b
+              !
+              !$acc parallel
+              !
+              call impone_cond_frontera(cond_front_vb,&
+                   & BS,BC,BN,Ry, &
+                   & nj+1,mi+1,   &
+                   & mi+1,nj,     &
+                   & av )               
+              !
+              !-----------------------------------------------
+              !
+              ! lado d
+              !
+              call impone_cond_frontera(cond_front_vd,&
+                   & BS,BC,BN,Ry, &
+                   & nj+1,mi+1,   &
+                   & mi+1,nj,     &
+                   & av )         
+              !$acc end parallel
+              !
+              !$acc parallel loop gang ! async(stream2)
+              solucion_momento_vy: do ii = 2, mi
+
+                 call tridiagonal(BS(1:nj,ii),BC(1:nj,ii),BN(1:nj,ii),Ry(1:nj,ii),nj)
+                
+
+              end do solucion_momento_vy
+              !$acc wait
+              !----------------------------------
+              !
+              ! Actualizaci\'on de la velocidad v
+              !
+              !$acc parallel loop gang collapse(2) !async(stream1) wait(stream2)
+              do ii = 2, mi
+                 do jj = 1, nj+1
+                    v(ii,jj) = Ry(jj,ii)
+                 end do
+              end do
+              !$acc wait
               !
               !---------------------------
               !
@@ -580,6 +652,9 @@ PROGRAM IXCHEL2D
               !
               !-----------------------------------------------
               !
+              ! Region paralela para imponer las cond. de front.
+              ! en la GPU
+              ! 
               ! lado a
               !
               !$acc parallel
@@ -588,15 +663,7 @@ PROGRAM IXCHEL2D
                    & mi+1,nj+1,   &
                    & mi+1,nj,     &
                    & av )
-              !-----------------------------------------------
-              !
-              ! lado b
-              !
-              call impone_cond_frontera(cond_front_vb,&
-                   & BS,BC,BN,Ry, &
-                   & nj+1,mi+1,   &
-                   & mi+1,nj,     &
-                   & av )         
+       
               !-----------------------------------------------
               !
               ! lado c
@@ -606,16 +673,7 @@ PROGRAM IXCHEL2D
                    & mi+1,nj+1,   &
                    & mi+1,nj,     &
                    & av )            
-              !-----------------------------------------------
-              !
-              ! lado d
-              !
-              call impone_cond_frontera(cond_front_vd,&
-                   & BS,BC,BN,Ry, &
-                   & nj+1,mi+1,   &
-                   & mi+1,nj,     &
-                   & av )         
-              !$acc end parallel 
+              !$acc end parallel
               !
               !------------------------------------
               !
@@ -624,21 +682,10 @@ PROGRAM IXCHEL2D
               !$acc parallel loop gang async(stream1)  !wait(stream2)
               solucion_momento_vx: do jj = 2, nj-1
 
-                 call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),Rx(1:mi+1,jj),mi+1)
-                 v(1,jj)    = Rx(1,jj)
-                 v(mi+1,jj) = Rx(mi+1,jj)
-
+                 call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),&
+                      &Rx(1:mi+1,jj),mi+1)
+                 
               end do solucion_momento_vx
-              !
-              !$acc parallel loop gang async(stream2)
-              solucion_momento_vy: do ii = 2, mi
-
-                 call tridiagonal(BS(1:nj,ii),BC(1:nj,ii),BN(1:nj,ii),Ry(1:nj,ii),nj)
-                 v(ii,1)    = Ry(1,ii)
-                 v(ii,nj)   = Ry(nj,ii)
-
-              end do solucion_momento_vy
-              !$acc wait
               !
               !----------------------------------
               !
@@ -646,8 +693,8 @@ PROGRAM IXCHEL2D
               !
               !$acc parallel loop gang collapse(2) !async(stream1) wait(stream2)
               do jj = 2, nj-1
-                 do ii = 2, mi
-                    v(ii,jj) = 0.5_DBL*Rx(ii,jj)+0.5_DBL*Ry(jj,ii)
+                 do ii = 1, mi+1
+                    v(ii,jj) = Rx(ii,jj)
                  end do
               end do
               !$acc wait
@@ -869,7 +916,7 @@ PROGRAM IXCHEL2D
            !$acc parallel loop gang collapse(2) !async(stream2)
            do jj = 2, nj
               do ii = 2, mi
-                 pres(ii,jj) = pres(ii,jj) + corr_pres(ii,jj)
+                 pres(ii,jj) = pres(ii,jj) + 0.6_DBL*corr_pres(ii,jj)
               end do
            end do
            !
