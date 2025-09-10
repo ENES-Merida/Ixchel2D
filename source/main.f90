@@ -679,7 +679,7 @@ PROGRAM IXCHEL2D
               !
               ! Soluci\'on de las ecs. de momento v
               !
-              !$acc parallel loop gang async(stream1)  !wait(stream2)
+              !$acc parallel loop gang !async(stream1)  !wait(stream2)
               solucion_momento_vx: do jj = 2, nj-1
 
                  call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),&
@@ -967,30 +967,13 @@ PROGRAM IXCHEL2D
               ! Condiciones de frontera
               !
               !------------
-              !
-              ! lado a
-              !
-              !$acc parallel
-              call impone_cond_frontera(cond_front_ta,&
-                   & AI,AC,AD,Rx, &
-                   & mi+1,nj+1,   &
-                   & mi+1,nj+1)
-              !-----------------------------------------------
-              !
               ! lado b
               !
+              !$acc parallel
               call impone_cond_frontera(cond_front_tb,&
                    & BS,BC,BN,Ry, &
                    & nj+1,mi+1,   &
                    & mi+1,nj+1) 
-              !-----------------------------------------------
-              !
-              ! lado c
-              !
-              call impone_cond_frontera(cond_front_tc,&
-                   & AI,AC,AD,Rx, &
-                   & mi+1,nj+1,   &
-                   & mi+1,nj+1)             
               !-----------------------------------------------
               !
               ! lado d
@@ -1025,17 +1008,48 @@ PROGRAM IXCHEL2D
               !
               ! Soluci\'on de la ecuaci\'on de la energ\'ia en y
               !
-              !$acc parallel loop gang async(stream1) 
+              !$acc parallel loop gang !async(stream1)
               solucion_energia_y: do ii = 2, mi
 
                  call tridiagonal(BS(1:nj+1,ii),BC(1:nj+1,ii),BN(1:nj+1,ii),Ry(1:nj+1,ii),nj+1)
-                 temp(ii,1)    = Ry(1,ii)
-                 temp(ii,nj+1) = Ry(nj+1,ii)
 
               end do solucion_energia_y
               !$acc wait
               !
+              !----------------------------------------
+              !
+              ! Actualizacion de la energia
+              !
+              !$acc parallel loop gang collapse(2)
+              do ii = 2, mi
+                 do jj = 1, nj+1
+                    temp(ii,jj) = Ry(jj,ii)
+                 end do
+              end do
+              !$acc wait
               !------------------------------------------
+              !
+              ! Condiciones de frontera
+              !
+              !------------
+              !
+              ! lado a
+              !
+              !$acc parallel
+              call impone_cond_frontera(cond_front_ta,&
+                   & AI,AC,AD,Rx, &
+                   & mi+1,nj+1,   &
+                   & mi+1,nj+1)
+              !-----------------------------------------------
+              !
+              ! lado c
+              !
+              call impone_cond_frontera(cond_front_tc,&
+                   & AI,AC,AD,Rx, &
+                   & mi+1,nj+1,   &
+                   & mi+1,nj+1)
+              !$acc end parallel
+              !-----------------------------------------------
               !
               ! Se ensambla la ecuaci\'on de la energ\'ia en x
               !
@@ -1059,15 +1073,26 @@ PROGRAM IXCHEL2D
               !
               ! Soluci\'on de la ecuaci\'on de la energ\'ia en x
               !
-              !$acc parallel loop gang async(stream2) wait(stream1)
+              !$acc parallel loop gang !async(stream2) wait(stream1)
               solucion_energia_x: do jj = 2, nj
 
                  call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),Rx(1:mi+1,jj),mi+1)
-                 temp(1,jj)    = Rx(1,jj)
-                 temp(mi+1,jj) = Rx(mi+1,jj)
 
               end do solucion_energia_x
               !
+              !----------------------------------------
+              !
+              ! Actualizacion de la energia
+              !
+              !$acc parallel loop gang collapse(2)
+              do jj = 2, nj
+                 do ii = 1, mi+1
+                    temp(ii,jj) = Rx(ii,jj)
+                 end do
+              end do
+              !$acc wait
+              !
+              !----------------------------------------
               !
               ! error de la ecuaci\'on de la energ\'ia
               !
