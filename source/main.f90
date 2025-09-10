@@ -355,12 +355,12 @@ PROGRAM IXCHEL2D
      !$acc &         pres(1:mi+1,1:nj+1),temp(1:mi+1,1:nj+1),                  &
      !$acc &         corr_pres(1:mi+1,1:nj+1),                                 &
      !$acc &         u_ant(1:mi,1:nj+1),v_ant(1:mi+1,1:nj),                    &
-     !$acc &         temp_ant(1:mi+1,1:nj+1),                                  &
-     !$acc &         Resu(1:mi,1:nj+1)                                         &
+     !$acc &         temp_ant(1:mi+1,1:nj+1),b_o(1:mi+1,1:nj+1)                &
      !$acc &         )&     
      !$acc & copyin(&
      !$acc &        tiempo_inicial,                                            &
-     !$acc &        au(1:mi,1:nj+1),av(1:mi+1,1:nj),b_o(1:mi+1,1:nj+1),        &
+     !$acc &        Resu(1:mi,1:nj+1),                                         &
+     !$acc &        au(1:mi,1:nj+1),av(1:mi+1,1:nj),        &
      !$acc &        gamma_momen(1:mi+1,1:nj+1),gamma_energ(1:mi+1,1:nj+1),     &
      !$acc &        deltaxp(1:mi),deltayp(1:nj),deltaxu(1:mi),deltayu(1:nj),   &
      !$acc &        deltaxv(1:mi),deltayv(1:nj),                               &
@@ -754,6 +754,22 @@ PROGRAM IXCHEL2D
                  end do
               end do inicializa_fcorr_press
               !
+              !-----------------------------------------------
+              !
+              ! Se ensambla la ecuaci\'on de la presi\'on en y
+              !
+              !$acc parallel loop gang !async(stream2)
+              do ii = 2, mi
+                 !$acc loop vector
+                 do jj = 2, nj
+                    call ensambla_corr_pres_y(deltaxp,deltayp,&
+                         &deltaxu,deltayv,&
+                         &u,v,&
+                         &corr_pres,rel_pres,&
+                         &BS,BC,BN,Ry,au,av,&
+                         &ii,jj)
+                 end do
+              end do
               !-------------------------
               !
               ! Condiciones de frontera
@@ -771,34 +787,6 @@ PROGRAM IXCHEL2D
                  Ry(nj+1,ii)  = 0.0_DBL
               end do bucle_direccionxe
               !
-              !$acc parallel loop vector !async(stream1)
-              do jj = 2, nj
-                 !------------------------
-                 ! Condiciones de frontera
-                 AC(1,jj) = 1._DBL
-                 AD(1,jj) = 0._DBL
-                 Rx(1,jj) = 0._DBL
-                 !
-                 AI(mi+1,jj) = 0.0_DBL
-                 AC(mi+1,jj) = 1.0_DBL
-                 Rx(mi+1,jj) = 0.0_DBL
-              end do
-              !-----------------------------------------------
-              !
-              ! Se ensambla la ecuaci\'on de la presi\'on en y
-              !
-              !$acc parallel loop gang !async(stream2)
-              do ii = 2, mi
-                 !$acc loop vector
-                 do jj = 2, nj
-                    call ensambla_corr_pres_y(deltaxp,deltayp,&
-                         &deltaxu,deltayv,&
-                         &u,v,&
-                         &corr_pres,rel_pres,&
-                         &BS,BC,BN,Ry,au,av,&
-                         &ii,jj)
-                 end do
-              end do
               !
               !---------------------------------------------------
               !
@@ -840,6 +828,19 @@ PROGRAM IXCHEL2D
                          &AI,AC,AD,Rx,au,av,&
                          &jj,ii)
                  end do
+              end do
+              !
+              !$acc parallel loop vector !async(stream1)
+              do jj = 2, nj
+                 !------------------------
+                 ! Condiciones de frontera
+                 AC(1,jj) = 1._DBL
+                 AD(1,jj) = 0._DBL
+                 Rx(1,jj) = 0._DBL
+                 !
+                 AI(mi+1,jj) = 0.0_DBL
+                 AC(mi+1,jj) = 1.0_DBL
+                 Rx(mi+1,jj) = 0.0_DBL
               end do
               !---------------------------------------------------
               !
