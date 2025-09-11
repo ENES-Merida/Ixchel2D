@@ -68,13 +68,13 @@ contains
        !
     case('nulo')
        !
-       !$acc loop gang
+       ! $acc loop gang
        do jj = 1, nj+1
           do ii = 1, mi
              u_ant(ii,jj) = 0.0_DBL
           end do
        end do
-       !$acc loop gang
+       ! $acc loop gang
        do jj = 1, nj
           do ii = 1, mi+1
              v_ant(ii,jj) = 0.0_DBL

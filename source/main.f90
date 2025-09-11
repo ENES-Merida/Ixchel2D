@@ -33,7 +33,7 @@ PROGRAM IXCHEL2D
   use ec_momento, only : pres, corr_pres, dcorr_pres, fcorr_pres
   use ec_momento, only : uf, vf, b_o
   use ec_momento, only : maxbo, conv_u, conv_p, conv_paso, rel_pres, rel_vel
-  use ec_momento, only : gamma_momen, Riy
+  use ec_momento, only : gamma_momen
   !
   ! Rutinas de ensamblaje de la ec. de momento, correcci\'on de presi\'on y residuo
   !
@@ -291,7 +291,10 @@ PROGRAM IXCHEL2D
   tiempo_inicial = itera_inicial*dt
   itera_total    = itera_inicial
   call condicion_inicial_flujo(flujo_ini)
+  ! $acc parallel
   call condicion_inicial_tempe(tempe_ini)
+  ! $acc end parallel
+  !
   ! u_ant = 1.0_DBL
   ! u_ant = 0.0_DBL
   ! v_ant = 0.0_DBL
@@ -303,8 +306,8 @@ PROGRAM IXCHEL2D
   temp      = temp_ant
   Resu      = 0.0_DBL
   corr_pres = 0.0_DBL !* dfloat(mi+1-ii)/dfloat(mi)
-  au    = 1._DBL
-  av    = 1._DBL
+  au    = 1.e40_DBL
+  av    = 1.e40_DBL
   b_o   = 0.0_DBL
   itera = 0
   iter_ecuaci = 0
@@ -414,12 +417,12 @@ PROGRAM IXCHEL2D
               !
               !---------------------------------------
               !
-              !$acc parallel loop gang !async(stream2)
+              !$acc parallel loop gang collapse(2) !async(stream2)
               bucle_uy_direccion_y: do jj = 2, nj
                  !
                  ! Llenado de la matriz
                  !
-                 !$acc loop vector
+                 ! $acc loop vector
                  bucle_uy_direccion_x: do ii = 2, mi-1
                     call ensambla_velu_y(deltaxu,deltayu,deltaxp,&
                          &deltayv,fexp,feyp,fexu,gamma_momen,&
@@ -486,12 +489,12 @@ PROGRAM IXCHEL2D
               ! Se ensambla la ecuaci\'on de momento
               ! para u en direcci\'on x
               !
-              !$acc parallel loop gang !async(stream2)
+              !$acc parallel loop gang collapse(2) 
               bucle_ux_direccion_y: do jj = 2, nj
                  !
                  ! Llenado de la matriz
                  !
-                 !$acc loop vector
+                 ! $acc loop vector
                  bucle_ux_direccion_x: do ii = 2, mi-1
                     call ensambla_velu_x(deltaxu,deltayu,deltaxp,&
                          &deltayv,fexp,feyp,fexu,gamma_momen,&
@@ -564,9 +567,9 @@ PROGRAM IXCHEL2D
               ! Se ensambla la velocidad v en direcci\'on y
               !
               !---------------------------------------------
-              !$acc parallel loop gang !async(stream2)
+              !$acc parallel loop gang collapse(2)
               do jj = 2, nj-1
-                 !$acc loop vector
+                 ! $acc loop vector
                  do ii = 2, mi
                     call ensambla_velv_y(deltaxv,deltayv,deltaxu,&
                          &deltayp,fexp,feyp,feyv,gamma_momen,&
@@ -589,14 +592,25 @@ PROGRAM IXCHEL2D
               !
               ! lado b
               !
+              ! $acc parallel
+              !
+              ! call impone_cond_frontera(cond_front_vb,&
+              !      & BS,BC,BN,Ry, &
+              !      & nj+1,mi+1,   &
+              !      & mi+1,nj,     &
+              !      & av )
+              !
+              !$acc parallel loop vector !async(stream1)
+              bucle_direccionyv: do ii = 2, mi
+                 !***********************
+                 !Condiciones de frontera
+                 BC(1,ii)     = 1._DBL
+                 BN(1,ii)     = 0.0_DBL
+                 Ry(1,ii)     = 0.0_DBL
+                 av(1,ii)     = 1.0e40_DBL
+                 !
+              end do bucle_direccionyv
               !$acc parallel
-              !
-              call impone_cond_frontera(cond_front_vb,&
-                   & BS,BC,BN,Ry, &
-                   & nj+1,mi+1,   &
-                   & mi+1,nj,     &
-                   & av )               
-              !
               !-----------------------------------------------
               !
               ! lado d
@@ -631,9 +645,9 @@ PROGRAM IXCHEL2D
               !
               ! Se ensambla la velocidad v en direcci\'on x
               !
-              !$acc parallel loop gang !async(stream2)
+              !$acc parallel loop gang collapse(2)
               do jj = 2, nj-1
-                 !$acc loop vector
+                 ! $acc loop vector
                  do ii = 2, mi
                     call ensambla_velv_x(deltaxv,deltayv,deltaxu,&
                          &deltayp,fexp,feyp,feyv,gamma_momen,&
@@ -701,13 +715,12 @@ PROGRAM IXCHEL2D
               ! error de la ecuacion de momento
               !
               error = 0.0_DBL
-              !$acc parallel loop gang reduction(+:error) ! async(stream1)
+              !$acc parallel loop gang collapse(2) reduction(+:error) ! async(stream1)
               calculo_diferencias_dv: do jj=2, nj-1
-                 !
-                 !$acc loop vector
-                 do ii = 2, mi
-                    !error = max(error, abs(v(ii,jj)-fv(ii,jj)))
+                do ii = 2, mi
+
                     error = error + (v(ii,jj)-fv(ii,jj))*(v(ii,jj)-fv(ii,jj))
+
                  end do
               end do calculo_diferencias_dv
               error = sqrt(error)
@@ -737,7 +750,7 @@ PROGRAM IXCHEL2D
            !-----------------------------------------
            !-----------------------------------------
            !
-           !$acc parallel loop gang collapse(2) !async(stream2)
+           !$acc parallel loop gang collapse(2)
            inicializa_corrector_presion: do jj = 1, nj+1
               do ii = 1, mi+1
                  corr_pres(ii,jj) = 0.0_DBL
@@ -747,7 +760,7 @@ PROGRAM IXCHEL2D
            !
            correccion_presion: do
               !
-              !$acc parallel loop gang collapse(2) ! async(stream1) wait(stream2)
+              !$acc parallel loop gang collapse(2)
               inicializa_fcorr_press: do jj=2, nj
                  do ii = 2, mi
                     fcorr_pres(ii,jj) = corr_pres(ii,jj)
@@ -758,9 +771,9 @@ PROGRAM IXCHEL2D
               !
               ! Se ensambla la ecuaci\'on de la presi\'on en y
               !
-              !$acc parallel loop gang !async(stream2)
+              !$acc parallel loop gang collapse(2)
               do ii = 2, mi
-                 !$acc loop vector
+                 ! $acc loop vector
                  do jj = 2, nj
                     call ensambla_corr_pres_y(deltaxp,deltayp,&
                          &deltaxu,deltayv,&
@@ -817,9 +830,9 @@ PROGRAM IXCHEL2D
               !
               ! Se ensambla la ecuaci\'on de la presi\'on en x
               !
-              !$acc parallel loop gang !async(stream2)
+              !$acc parallel loop gang collapse(2)
               do jj = 2, nj
-                 !$acc loop vector
+                 ! $acc loop vector
                  do ii = 2, mi
                     call ensambla_corr_pres_x(deltaxp,deltayp,&
                          &deltaxu,deltayv,&
@@ -830,7 +843,7 @@ PROGRAM IXCHEL2D
                  end do
               end do
               !
-              !$acc parallel loop vector !async(stream1)
+              !$acc parallel loop vector
               do jj = 2, nj
                  !------------------------
                  ! Condiciones de frontera
@@ -846,7 +859,7 @@ PROGRAM IXCHEL2D
               !
               ! Soluci\'on de la correcci\'on de la presi\'on en x
               !       
-              !$acc parallel loop gang !async(stream1) wait(stream2)
+              !$acc parallel loop gang
               solucion_presion_x: do jj = 2, nj
 
                  call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),&
@@ -859,7 +872,7 @@ PROGRAM IXCHEL2D
               !
               ! Actualizaci\'on del corrector de la presi\'on en x
               !
-              !$acc parallel loop gang collapse(2) !async(stream1) wait(stream2)
+              !$acc parallel loop gang collapse(2)
               do jj = 2, nj
                  do ii = 1, mi+1
                     corr_pres(ii,jj) = Rx(ii,jj)
@@ -872,26 +885,27 @@ PROGRAM IXCHEL2D
               error = 0.0_DBL
               maxbo = 0.0_DBL
               !
-              !$acc parallel loop gang reduction(+:error) !async(stream1)
+              !$acc parallel loop gang collapse(2) reduction(+:error)
               calculo_dif_corr_pres: do jj=2, nj
                  do ii=2, mi
-                    ! error = max(error,abs(corr_pres(ii,jj)-fcorr_pres(ii,jj)))
+
                     error = error + (corr_pres(ii,jj)-fcorr_pres(ii,jj))*&
                          (corr_pres(ii,jj)-fcorr_pres(ii,jj))
-                    ! maxbo = max(maxbo,abs(b_o(ii,jj)))
+
                  end do
               end do calculo_dif_corr_pres
               error=sqrt(error)
               !
-              !$acc parallel loop gang reduction(+:maxbo) !async(stream2)
+              !$acc parallel loop gang collapse(2) reduction(+:maxbo)
               calculo_dif_maxbo: do jj=2, nj
                  do ii=2, mi
-                    ! error = max(error,abs(corr_pres(ii,jj)-fcorr_pres(ii,jj)))
-                    ! maxbo = max(maxbo,abs(b_o(ii,jj)))
-                    maxbo = maxbo+b_o(ii,jj)*b_o(ii,jj)
+
+                    maxbo = maxbo + b_o(ii,jj)*b_o(ii,jj)
+                    
                  end do
               end do calculo_dif_maxbo
               maxbo = sqrt(maxbo)
+              !
               !-----------------------------------------------------
               !
               ! Critero de convergencia del corrector de la presi'on
@@ -907,7 +921,7 @@ PROGRAM IXCHEL2D
                  exit
               else
                  iter_ecuaci = iter_ecuaci+1
-                 ! write(*,*) 'corrector presion ', MAXVAL(ABS(dcorr_pres)), MAXVAL(ABS(b_o))
+                 ! write(*,*) 'corrector presion ',error,maxbo
               end if
            end do correccion_presion
            !$acc wait
@@ -915,7 +929,7 @@ PROGRAM IXCHEL2D
            !
            ! Se corrige la presion
            !
-           !$acc parallel loop gang collapse(2) !async(stream2)
+           !$acc parallel loop gang collapse(2)
            do jj = 2, nj
               do ii = 2, mi
                  pres(ii,jj) = pres(ii,jj) + 0.6_DBL*corr_pres(ii,jj)
@@ -926,7 +940,7 @@ PROGRAM IXCHEL2D
            !
            ! Se corrigen las velocidades
            !
-           !$acc parallel loop gang collapse(2) !async(stream1)
+           !$acc parallel loop gang collapse(2)
            do jj = 2, nj-1
               do ii = 2, mi-1
                  u(ii,jj) = u(ii,jj)+deltayu(jj)*&
@@ -936,13 +950,13 @@ PROGRAM IXCHEL2D
               end do
            end do
            !
-           !$acc parallel loop vector !async(stream1)
+           !$acc parallel loop vector
            do ii = 2, mi-1
               u(ii,nj) = u(ii,nj)+deltayu(nj)*&
                    &(corr_pres(ii,nj)-corr_pres(ii+1,nj))/au(ii,nj)
            end do
            !
-           !$acc parallel loop vector !async(stream2)
+           !$acc parallel loop vector
            do jj = 2, nj-1
               v(mi,jj) = v(mi,jj)+deltaxv(mi)*&
                    &(corr_pres(mi,jj)-corr_pres(mi,jj+1))/av(mi,jj)
@@ -964,6 +978,27 @@ PROGRAM IXCHEL2D
                     ftemp(ii,jj) = temp(ii,jj)
                  end do
               end do inicializacion_ftemp
+              !
+              !------------------------------------------
+              !
+              ! Se ensambla la ecuaci\'on de la energ\'ia en y
+              !
+              !$acc parallel loop gang collapse(2)
+              do jj = 2, nj
+                 ! $acc loop vector
+                 do ii = 2, mi
+                    call ensambla_energia_y(deltaxp,deltayp,&
+                         &deltaxu,deltayv,fexu,feyv,gamma_energ,&
+                         &fuente_con_t,fuente_lin_t,&
+                         &u,v,&
+                         &temp,temp_ant,dt,&
+                         &rel_ener,placa_min,placa_max,&
+                         &BS,BC,BN,Ry,&
+                         &jj,ii&
+                         &)
+                 end do
+              end do
+              !
               !-----------------------------------------------
               !
               ! Condiciones de frontera
@@ -990,27 +1025,6 @@ PROGRAM IXCHEL2D
                    & nj+1,mi+1,   &
                    & mi+1,nj+1)
               !$acc end parallel
-              !
-              !------------------------------------------
-              !
-              ! Se ensambla la ecuaci\'on de la energ\'ia en y
-              !
-              !$acc parallel loop gang !async(stream1)
-              do jj = 2, nj
-                 !$acc loop vector
-                 do ii = 2, mi
-                    call ensambla_energia_y(deltaxp,deltayp,&
-                         &deltaxu,deltayv,fexu,feyv,gamma_energ,&
-                         &fuente_con_t,fuente_lin_t,&
-                         &u,v,&
-                         &temp,temp_ant,dt,&
-                         &rel_ener,placa_min,placa_max,&
-                         &BS,BC,BN,Ry,&
-                         &jj,ii&
-                         &)
-                 end do
-              end do
-              !
               !---------------------------------------------
               !
               ! Soluci\'on de la ecuaci\'on de la energ\'ia en y
@@ -1040,9 +1054,9 @@ PROGRAM IXCHEL2D
               !
               ! Se ensambla la ecuaci\'on de la energ\'ia en x
               !
-              !$acc parallel loop gang !async(stream1)
+              !$acc parallel loop gang collapse(2)
               do jj = 2, nj
-                 !$acc loop vector
+                 ! $acc loop vector
                  do ii = 2, mi
                     call ensambla_energia_x(deltaxp,deltayp,&
                          &deltaxu,deltayv,fexu,feyv,gamma_energ,&
@@ -1084,27 +1098,11 @@ PROGRAM IXCHEL2D
                    & mi+1,nj+1)
               !$acc end parallel
               !
-              ! lado a
-              !
-              !$acc parallel
-              call impone_cond_frontera(cond_front_ta,&
-                   & AI,AC,AD,Rx, &
-                   & mi+1,nj+1,   &
-                   & mi+1,nj+1)
-              !-----------------------------------------------
-              !
-              ! lado c
-              !
-              call impone_cond_frontera(cond_front_tc,&
-                   & AI,AC,AD,Rx, &
-                   & mi+1,nj+1,   &
-                   & mi+1,nj+1)
-              !$acc end parallel
               !---------------------------------------------
               !
               ! Soluci\'on de la ecuaci\'on de la energ\'ia en x
               !
-              !$acc parallel loop gang !async(stream2) wait(stream1)
+              !$acc parallel loop gang 
               solucion_energia_x: do jj = 2, nj
 
                  call tridiagonal(AI(1:mi+1,jj),AC(1:mi+1,jj),AD(1:mi+1,jj),&
@@ -1130,7 +1128,7 @@ PROGRAM IXCHEL2D
               !
               error = 0.0_DBL
               !
-              !$acc parallel loop reduction(+:error) !async(stream1) wait(stream2)
+              !$acc parallel loop gang collapse(2) reduction(+:error)
               calculo_diferencias_dtemp: do jj = 2, nj
                  do ii = 2, mi
                     error = error + (temp(ii,jj)-ftemp(ii,jj))*(temp(ii,jj)-ftemp(ii,jj))
@@ -1146,6 +1144,7 @@ PROGRAM IXCHEL2D
               !$acc wait
               if( error < conv_t )then
                  iter_ecuaci = 0
+                 ! write(*,*) 'temp', error
                  exit
               else if( iter_ecuaci > iter_ecuaci_max )then
                  iter_ecuaci = 0
@@ -1154,7 +1153,7 @@ PROGRAM IXCHEL2D
                  exit
               else
                  iter_ecuaci = iter_ecuaci + 1
-                 ! write(*,*) 'temp', maxval(abs(dtemp))
+                 ! write(*,*) 'temp', error
               end if
               !
            end do solucion_energia
@@ -1168,12 +1167,11 @@ PROGRAM IXCHEL2D
            !--------------------------------------------
            !--------------------------------------------
            !
-           !$acc parallel loop gang
+           !$acc parallel loop gang collapse(2)
            bucle_residuo_direccion_y: do jj = 2, nj
               !
               ! Llenado de la matriz
               !
-              !$acc loop vector
               bucle_residuo_direccion_x: do ii = 2, mi-1
                  !
                  call residuo_u(deltaxu,deltayu,deltaxp,&
@@ -1191,11 +1189,11 @@ PROGRAM IXCHEL2D
            !--------------------------------
            !
            ! residuo del algoritmo
+           !
            residuo = 0.0_DBL
-           !$acc parallel loop reduction(+:residuo) !async(stream1)
+           !$acc parallel loop collapse(2) reduction(+:residuo) !async(stream1)
            calculo_maximo_residuou: do jj=2, nj
               do ii = 2, mi-1
-                 ! residuo = max(residuo, abs(Resu(ii,jj)))
                  residuo = residuo + Resu(ii,jj)*Resu(ii,jj)
               end do
            end do calculo_maximo_residuou
@@ -1227,7 +1225,7 @@ PROGRAM IXCHEL2D
         if( mod(itera,500)==0 )write(*,*) 'ITERACION: ',itera,residuo,maxbo
 
         if( mod(itera,1000)==0 )then
-           !     CALL entropia_cvt(x,y,u,xu,v,yv,temp,entropia_calor,entropia_viscosa,entropia,&
+           !CALL entropia_cvt(x,y,u,xu,v,yv,temp,entropia_calor,entropia_viscosa,entropia,&
            !&entropia_int,temp_int,a_ent,lambda_ent)
            !
            !$acc update self(temp(1:mi+1,1:nj+1)) ! !async(stream2)

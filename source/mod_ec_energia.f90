@@ -46,7 +46,7 @@ contains
   subroutine condicion_inicial_tempe(cond_inicial)
     !
     implicit none
-    ! $acc routine
+    ! $acc routine seq
     !
     integer :: ii, jj
     character(len=8), intent(in) :: cond_inicial
@@ -55,7 +55,7 @@ contains
        !
     case('baja')
        !
-       !$acc loop gang
+       ! $acc parallel loop 
        do jj = 1, nj+1
           do ii = 1, mi+1
              temp_ant(ii,jj) = 0.0_DBL
@@ -64,7 +64,7 @@ contains
        !
     case('alta')
        !
-       !$acc loop gang
+       ! $acc parallel loop
        do jj = 1, nj+1
           do ii = 1, mi+1
              temp_ant(ii,jj) = 1.0_DBL
