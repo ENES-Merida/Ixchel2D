@@ -118,7 +118,7 @@ contains
        write(*,form36) 'Cond. de frontera para ', variable, &
             &' con ', divisiones,' division(es) en lado ', lado
        !
-       lado: select case( lado )
+       sel_lado: select case( lado )
           !
        case( 'a' )
           !
@@ -233,7 +233,7 @@ contains
           !
           cond_front_uud % indice_div(divisiones+1) = mm-1 ! indice final para bucles de frontera
           !
-       end select lado
+       end select sel_lado
           !
     end do lectura
     !
