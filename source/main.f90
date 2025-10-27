@@ -592,25 +592,24 @@ PROGRAM IXCHEL2D
               !
               ! lado b
               !
+              !$acc parallel              
+              call impone_cond_frontera(cond_front_vb,&
+                   & BS,BC,BN,Ry, &
+                   & nj+1,mi+1,   &
+                   & mi+1,nj,     &
+                   & av )
+              
+              ! !$acc parallel loop vector !async(stream1)
+              ! bucle_direccionyv: do ii = 2, mi
+              !    !***********************
+              !    !Condiciones de frontera
+              !    BC(1,ii)     = 1._DBL
+              !    BN(1,ii)     = 0.0_DBL
+              !    Ry(1,ii)     = 0.0_DBL
+              !    av(1,ii)     = 1.0e40_DBL
+              !    !
+              ! end do bucle_direccionyv
               ! $acc parallel
-              !
-              ! call impone_cond_frontera(cond_front_vb,&
-              !      & BS,BC,BN,Ry, &
-              !      & nj+1,mi+1,   &
-              !      & mi+1,nj,     &
-              !      & av )
-              !
-              !$acc parallel loop vector !async(stream1)
-              bucle_direccionyv: do ii = 2, mi
-                 !***********************
-                 !Condiciones de frontera
-                 BC(1,ii)     = 1._DBL
-                 BN(1,ii)     = 0.0_DBL
-                 Ry(1,ii)     = 0.0_DBL
-                 av(1,ii)     = 1.0e40_DBL
-                 !
-              end do bucle_direccionyv
-              !$acc parallel
               !-----------------------------------------------
               !
               ! lado d
