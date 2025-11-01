@@ -309,7 +309,7 @@ PROGRAM IXCHEL2D
   au    = 1.e40_DBL
   av    = 1.e40_DBL
   b_o   = 0.0_DBL
-  itera = 0
+  itera = 1
   iter_ecuaci = 0
   iter_simple = 0
   maxbo   = 0.0_DBL
@@ -324,7 +324,7 @@ PROGRAM IXCHEL2D
   !
   ! Construcci\'on de s\'olidos con frontera inmersa 
   !
-  call definir_cuerpo(gamma_momen, gamma_energ, 'sincu')
+  call definir_cuerpo(gamma_momen, gamma_energ, 'tuxtl')
   !
   !----------------------------------------------
   !
@@ -451,6 +451,7 @@ PROGRAM IXCHEL2D
                    & BS,BC,BN,Ry, &
                    & nj+1,mi+1,   &
                    & mi,nj+1,     &
+                   & itera*dt,   &
                    & au )
               !-----------------------------------------------
               !
@@ -460,6 +461,7 @@ PROGRAM IXCHEL2D
                    & BS,BC,BN,Ry, &
                    & nj+1,mi+1,   &
                    & mi,nj+1,     &
+                   & itera*dt,      &
                    & au )
               !$acc end parallel
               !
@@ -521,6 +523,7 @@ PROGRAM IXCHEL2D
                    & AI,AC,AD,Rx, &
                    & mi+1,nj+1,   &
                    & mi,nj+1,     &
+                   & itera*dt,      &
                    & au )
               !
               !-------------------------------------
@@ -531,6 +534,7 @@ PROGRAM IXCHEL2D
                    & AI,AC,AD,Rx, &
                    & mi+1,nj+1,   &
                    & mi,nj+1,     &
+                   & itera*dt,      &
                    & au )
               !$acc end parallel
               !
@@ -597,6 +601,7 @@ PROGRAM IXCHEL2D
                    & BS,BC,BN,Ry, &
                    & nj+1,mi+1,   &
                    & mi+1,nj,     &
+                   & itera*dt,      &
                    & av )
               
               ! !$acc parallel loop vector !async(stream1)
@@ -618,6 +623,7 @@ PROGRAM IXCHEL2D
                    & BS,BC,BN,Ry, &
                    & nj+1,mi+1,   &
                    & mi+1,nj,     &
+                   & itera*dt,      &
                    & av )         
               !$acc end parallel
               !
@@ -674,6 +680,7 @@ PROGRAM IXCHEL2D
                    & AI,AC,AD,Rx, &
                    & mi+1,nj+1,   &
                    & mi+1,nj,     &
+                   & itera*dt,      &
                    & av )
        
               !-----------------------------------------------
@@ -684,6 +691,7 @@ PROGRAM IXCHEL2D
                    & AI,AC,AD,Rx, &
                    & mi+1,nj+1,   &
                    & mi+1,nj,     &
+                   & itera*dt,      &
                    & av )            
               !$acc end parallel
               !
@@ -1014,7 +1022,8 @@ PROGRAM IXCHEL2D
               call impone_cond_frontera(cond_front_tb,&
                    & BS,BC,BN,Ry, &
                    & nj+1,mi+1,   &
-                   & mi+1,nj+1) 
+                   & mi+1,nj+1,   &
+                   & itera*dt) 
               !-----------------------------------------------
               !
               ! lado d
@@ -1022,7 +1031,8 @@ PROGRAM IXCHEL2D
               call impone_cond_frontera(cond_front_td,&
                    & BS,BC,BN,Ry, &
                    & nj+1,mi+1,   &
-                   & mi+1,nj+1)
+                   & mi+1,nj+1,   &
+                   & itera*dt)
               !$acc end parallel
               !---------------------------------------------
               !
@@ -1086,7 +1096,8 @@ PROGRAM IXCHEL2D
               call impone_cond_frontera(cond_front_ta,&
                    & AI,AC,AD,Rx, &
                    & mi+1,nj+1,   &
-                   & mi+1,nj+1)
+                   & mi+1,nj+1,   &
+                   & itera*dt)
               !-----------------------------------------------
               !
               ! lado c
@@ -1094,7 +1105,8 @@ PROGRAM IXCHEL2D
               call impone_cond_frontera(cond_front_tc,&
                    & AI,AC,AD,Rx, &
                    & mi+1,nj+1,   &
-                   & mi+1,nj+1)
+                   & mi+1,nj+1,   &
+                   & itera*dt)
               !$acc end parallel
               !
               !---------------------------------------------

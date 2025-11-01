@@ -44,7 +44,7 @@ Program malla_irr
   temp = 0._DBL
   pres = 0._DBL
   !*********************************
-  ! generaci'on de la malla irregular
+  ! generaci'on de la malla regular
   ! puntos en x
   !
   do i = 1, mi
@@ -57,7 +57,7 @@ Program malla_irr
      !
      x_placa_min=8.0_DBL
      x_placa_max=9.0_DBL
-     tau=2._DBL
+     tau=6._DBL
      b=1._DBL/(2._DBL*tau)*dlog((1._DBL+(dexp(tau)-1._DBL)*(xc/ao))/(1._DBL+(dexp(-tau)-1._DBL)*(xc/ao)))
      do i =1,mi
         xu_eta(i)=xc*(1._DBL+dsinh(tau*(xu(i)-b))/dsinh(tau*b))
@@ -95,6 +95,7 @@ Program malla_irr
      x_eta(mi+1)=(3._DBL*xu_eta(mi)-xu_eta(mi-1))/2._DBL
      !
   else if( tipox == 'unif' )then
+     !
      do j=1,mi
         xu_eta(j)=ao*1.0_DBL*xu(j)
      end do    
@@ -103,10 +104,30 @@ Program malla_irr
      do j=1,mi-1
         x_eta(j+1)=(xu_eta(j+1)+xu_eta(j))/2._DBL
      end do
-     x_eta(mi+1)=(3._DBL*xu_eta(mi)-xu_eta(mi-1))/2._DBL     
+     x_eta(mi+1)=(3._DBL*xu_eta(mi)-xu_eta(mi-1))/2._DBL
+     !
+  else if( tipox == 'limi' )then
+     !
+     my = 0.7_DBL
+     !
+     do j=1,mi
+        xu_eta(j)=ao*( ( (my+1._DBL)-(my-1._DBL)*((my+1._DBL)/(my-1._DBL))**(1._DBL-xu(j)) ) / &
+             ( ((my+1._DBL)/(my-1._DBL))**(1._DBL-xu(j)) + 1._DBL ) )
+     end do    
+     x_eta(1)=(3._DBL*xu_eta(1)-xu_eta(2))/2._DBL
+     ! y_eta(1)=yv_eta(1)
+     do j=1,mi-1
+        x_eta(j+1)=(xu_eta(j+1)+xu_eta(j))/2._DBL
+     end do
+     x_eta(mi+1)=(3._DBL*xu_eta(mi)-xu_eta(mi-1))/2._DBL
+     !
   end if
-  !***********************
-  !***********************
+  !
+  !--------------------------------------------------------------------------
+  !
+  ! Distribuci'on de puntos en y
+  !
+  !--------------------------------------------------------------------------
   !puntos en y
   do j=1,nj
      yv(j)=dfloat(j-1)/dfloat(nj-1)
@@ -155,6 +176,26 @@ Program malla_irr
         y_eta(j+1)=(yv_eta(j+1)+yv_eta(j))/2._DBL
      end do
      y_eta(nj+1)=(3._DBL*yv_eta(nj)-yv_eta(nj-1))/2._DBL
+     !
+  else if( tipoy == 'limi' )then
+     !
+     my= 1.001_DBL
+     !
+     do j=1,nj
+        !
+        yv_eta(j)=bo*( ( (my+1._DBL)-(my-1._DBL)*( (my+1._DBL)/(my-1._DBL) )**(1._DBL-yv(j)) )  /&
+             ( ( (my+1._DBL)/(my-1._DBL) )**(1._DBL-yv(j))  + 1._DBL ) )
+        !
+        ! print*, "DEBUG: ",yv_eta(j),yv(j),( (my+1._DBL)/(my-1._DBL) )!**(1._DBL-0.5_DBL)
+     end do
+     !
+     y_eta(1)=(3._DBL*yv_eta(1)-yv_eta(2))/2._DBL
+     ! y_eta(1)=yv_eta(1)
+     do j=1,nj-1
+        y_eta(j+1)=(yv_eta(j+1)+yv_eta(j))/2._DBL
+     end do
+     y_eta(nj+1)=(3._DBL*yv_eta(nj)-yv_eta(nj-1))/2._DBL
+     !
   end if
   !velocidad inicial en x
   do j=1,nj+1

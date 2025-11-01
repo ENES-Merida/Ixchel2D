@@ -173,7 +173,301 @@ contains
           end if
           !
        end do
-       !       
+       !
+    else if( opcion=='tuxtl' )then
+       !
+       do ii=1,mi+1
+          !
+          ! ubicacion de la elevacion
+          !
+          xv = xp(ii)-19.d0
+          !
+          if( -1.d0 <= xv .and. xv<= 0.0633713561505498d0 )then
+             !
+             do jj = 1, nj+1
+                !
+                if( yp(jj) <= recta_x1_x2(&
+                     -1.d0,0.d0,&
+                     0.0633713561505498d0,0.7075d0,&
+                     xv) )then
+                   !
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   au(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   av(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10e50_DBL
+                   fuente_con_t(ii,jj) = 10e50_DBL*1.0_DBL
+                   !
+                else
+                   !
+                   exit
+                   !
+                end if
+                !
+             end do
+             !
+          else if ( 0.0633713561505498d0 < xv .and. &
+               xv<= 0.427756653997231d0 )then
+             !
+             do jj = 1, nj+1
+                !
+                if( yp(jj) <= recta_x1_x2(&
+                     0.0633713561505498d0,0.7075d0,&
+                     0.427756653997231d0,0.536666666666667d0,&
+                     xv) )then
+                   !
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   au(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   av(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10e50_DBL
+                   fuente_con_t(ii,jj) = 10e50_DBL*1.0_DBL
+                   !
+                else
+                   !
+                   exit
+                   !
+                end if
+                !
+             end do
+             !
+          else if ( 0.427756653997231d0<= xv .and. &
+               &xv <= 1.42585551331145d0 )then
+             !
+             do jj = 1, nj+1
+                !
+                if( yp(jj) <= recta_x1_x2(&
+                     0.427756653997231d0,0.536666666666667d0,&
+                     1.425855513311450d0,1.016666666666670d0,&
+                     xv) )then
+                   !
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   au(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   av(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10e50_DBL
+                   fuente_con_t(ii,jj) = 10e50_DBL*1.0_DBL
+                   !
+                else
+                   !
+                   exit
+                   !
+                end if
+                !
+             end do
+             !
+          else if ( 1.42585551331145d0 <= xv .and. xv <= 1.98035487959713d0 )then
+             !
+             do jj = 1, nj+1
+                !
+                if( yp(jj) <= recta_x1_x2(&
+                     1.425855513311450d0,1.016666666666670d0,&
+                     1.980354879597130d0,0.966666666666667d0,&
+                     xv) )then
+                   !
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   au(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   av(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10e50_DBL
+                   fuente_con_t(ii,jj) = 10e50_DBL*1.0_DBL
+                   !
+                else
+                   !
+                   exit
+                   !
+                end if
+                !
+             end do
+             !
+          else if ( 1.98035487959713d0 <= xv .and. xv <= 3.53295310519702d0 )then
+             !
+             do jj = 1, nj+1
+                !
+                if( yp(jj) <= recta_x1_x2(&
+                     1.980354879597130d0,0.966666666666667d0,&
+                     3.532953105197020d0,0.515833333333333d0,&
+                     xv) )then
+                   !
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   au(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   av(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10e50_DBL
+                   fuente_con_t(ii,jj) = 10e50_DBL*1.0_DBL
+                   !
+                else
+                   !
+                   exit
+                   !
+                end if
+                !
+             end do
+             !
+          else if ( 3.53295310519702d0 <= xv .and. xv <= 4.34093789607646d0 )then
+             !
+             do jj = 1, nj+1
+                !
+                if( yp(jj) <= recta_x1_x2(&
+                     3.532953105197020d0,0.515833333333333d0,&
+                     4.340937896076460d0,0.436666666666667d0,&
+                     xv) )then
+                   !
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   au(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   av(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10e50_DBL
+                   fuente_con_t(ii,jj) = 10e50_DBL*1.0_DBL
+                   !
+                else
+                   !
+                   exit
+                   !
+                end if
+                !
+             end do
+             !
+          else if ( 4.34093789607646d0 <= xv .and. xv <= 6.27376425855435d0 )then
+             !
+             do jj = 1, nj+1
+                !
+                if( yp(jj) <= recta_x1_x2(&
+                     4.340937896076460d0,0.436666666666667d0,&
+                     6.273764258554350d0,0.494166666666667d0,&
+                     xv) )then
+                   !
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   au(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   av(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10e50_DBL
+                   fuente_con_t(ii,jj) = 10e50_DBL*1.0_DBL
+                   !
+                else
+                   !
+                   exit
+                   !
+                end if
+                !
+             end do
+             !
+          else if ( 6.27376425855435d0 <= xv .and. xv <= 7.52534854246233d0 )then
+             !
+             do jj = 1, nj+1
+                !
+                if( yp(jj) <= recta_x1_x2(&
+                     6.273764258554350d0,0.494166666666667d0,&
+                     7.525348542462330d0,0.465833333333333d0,&
+                     xv) )then
+                   !
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   au(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   av(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10e50_DBL
+                   fuente_con_t(ii,jj) = 10e50_DBL*1.0_DBL
+                   !
+                else
+                   !
+                   exit
+                   !
+                end if
+                !
+             end do
+             !
+          else if ( 7.52534854246233d0 <= xv .and. xv <= 8.3174904942978d0 )then
+             !
+             do jj = 1, nj+1
+                !
+                if( yp(jj) <= recta_x1_x2(&
+                     7.525348542462330d0,0.465833333333333d0,&
+                     8.317490494297800d0,0.703333333333333d0,&
+                     xv) )then
+                   !
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   au(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   av(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10e50_DBL
+                   fuente_con_t(ii,jj) = 10e50_DBL*1.0_DBL
+                   !
+                else
+                   !
+                   exit
+                   !
+                end if
+                !
+             end do
+             !
+          else if ( 8.3174904942978d0 <= xv .and. xv <= 9.d0 )then
+             !
+             do jj = 1, nj+1
+                !
+                if( yp(jj) <= recta_x1_x2(&
+                     8.317490494297800d0,0.703333333333333d0,&
+                     9.d0,0.d0,&
+                     xv) )then
+                   !
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   au(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   av(ii,jj)           = 10.0e40_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10e50_DBL
+                   fuente_con_t(ii,jj) = 10e50_DBL*1.0_DBL
+                   !
+                else
+                   !
+                   exit
+                   !
+                end if
+                !
+             end do
+             !
+          end if
+          !
+       end do
+       !
     end if ! Selecci\'on del caso del cuerpo inmerso
     !
   end subroutine definir_cuerpo
@@ -250,5 +544,20 @@ contains
     recta_mxb2 = xx/mm + bb
     !
   end function recta_mxb2
-  !  
+  !
+  ! Recta entre los puntos (x1,y1) y (x2,y2)
+  !
+  real(kind=DBL) function recta_x1_x2(x1,y1,x2,y2,xx)
+    !
+    implicit none
+    !
+    real(kind=DBL), intent(in) :: x1,y1,x2,y2,xx
+    real(kind=DBL)             :: mm, bb
+    !
+    mm = (y2-y1)/(x2-x1)
+    bb =-mm*x2+y2
+    recta_x1_x2=mm*xx+bb
+    !
+  end function recta_x1_x2
+  !
 end module frontera_inmersa

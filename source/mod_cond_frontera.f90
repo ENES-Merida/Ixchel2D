@@ -255,6 +255,7 @@ contains
        & AI_o,AC_o,AD_o,Rx_o, &
        & mm,nn,               &
        & kk,ll,               &
+       & tiempb,              &
        & au_o )
     !
     !$acc routine seq
@@ -265,6 +266,7 @@ contains
     !
     real(kind=DBL), dimension(mm,nn), intent(out) :: AI_o, AC_o, AD_o, Rx_o
     real(kind=DBL), dimension(kk,ll), intent(out), optional :: au_o
+    real(kind=DBL)                                :: tiempb
     !
     integer, intent(in)                           :: mm, nn, kk, ll
     !
@@ -286,7 +288,7 @@ contains
                 AI_o(1,jj) = 0.0_DBL
                 AC_o(1,jj) = 1.0_DBL
                 AD_o(1,jj) = 0.0_DBL
-                Rx_o(1,jj) = cond_front_uu % valor_cond(ldiv)
+                Rx_o(1,jj) = dtanh((tiempb)/2.0d0)*cond_front_uu % valor_cond(ldiv)
                 if ( present(au_o) ) au_o(1,jj) = 1.e40_DBL
                 ! print*, "DEBUG: Dirichlet en a"
              end do
@@ -321,7 +323,7 @@ contains
                 AI_o(1,jj) = 0.0_DBL
                 AC_o(1,jj) = 1.0_DBL
                 AD_o(1,jj) = 0.0_DBL
-                Rx_o(1,jj) = cond_front_uu % valor_cond(ldiv)
+                Rx_o(1,jj) = dtanh((tiempb)/2.0d0)*cond_front_uu % valor_cond(ldiv)
                 if ( present(au_o) ) au_o(jj,1) = 1.e40_DBL
                 ! print*, "DEBUG: Dirichlet en a"
              end do
@@ -358,7 +360,7 @@ contains
                 AI_o(kk,jj) = 0.0_DBL
                 AC_o(kk,jj) = 1.0_DBL
                 AD_o(kk,jj) = 0.0_DBL
-                Rx_o(kk,jj) = cond_front_uu % valor_cond(ldiv)
+                Rx_o(kk,jj) = dtanh((tiempb)/2.0d0)*cond_front_uu % valor_cond(ldiv)
                 if ( present(au_o) ) au_o(kk,jj) = 1.e40_DBL
                 ! print*, "DEBUG: Dirichlet en a"
              end do
@@ -394,7 +396,7 @@ contains
                 AI_o(ll,jj) = 0.0_DBL
                 AC_o(ll,jj) = 1.0_DBL
                 AD_o(ll,jj) = 0.0_DBL
-                Rx_o(ll,jj) = cond_front_uu % valor_cond(ldiv)
+                Rx_o(ll,jj) = dtanh((tiempb)/2.0d0)*cond_front_uu % valor_cond(ldiv)
                 if ( present(au_o) ) au_o(jj,ll) = 1.e40_DBL
                 ! print*, "DEBUG: Dirichlet en a"
              end do
