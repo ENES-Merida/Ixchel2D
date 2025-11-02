@@ -1,7 +1,7 @@
 centro   ! tipo de mallado x
 48.0    ! longitud x
 24.00    ! Punto central x
-limite ! tipo de mallado y
+centro ! tipo de mallado y
 20.0    ! longitud y
-2.50   ! Punto central y
+0.85   ! Punto central y
 

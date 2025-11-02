@@ -85,11 +85,11 @@ contains
                 if( en_region_tipo1(yp(jj),xp(ii),yv-hh,yv,recta_mxb1,recta_mxb2) )then
                    ! print*, "DEBUG: dentro", xp(ii), yp(jj)
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL 
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL 
                    !
                 end if
              end do
@@ -118,11 +118,11 @@ contains
                    ! u_ant(ii,jj)        = 10.0_DBL
                    ! v_ant(ii,jj)        = 5.0_DBL
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL 
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL 
                    !
                    !print*, "DEBUG: dentro", ii,jj, u(ii,jj)
                 end if
@@ -155,12 +155,12 @@ contains
                    ! u_ant(ii,jj)        = 10.0_DBL
                    ! v_ant(ii,jj)        = 5.0_DBL
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
@@ -182,21 +182,21 @@ contains
           !
           xv = xp(ii)-19.d0
           !
-          if( -1.d0 <= xv .and. xv<= 0.0633713561505498d0 )then
+          if( -10.d0 <= xv .and. xv<= 0.0633713561505498d0 )then
              !
              do jj = 1, nj+1
                 !
                 if( yp(jj) <= recta_x1_x2(&
-                     -1.d0,0.d0,&
+                     -10.d0,0.d0,&
                      0.0633713561505498d0,0.7075d0,&
                      xv) )then
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
@@ -220,12 +220,12 @@ contains
                      0.427756653997231d0,0.536666666666667d0,&
                      xv) )then
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
@@ -249,12 +249,12 @@ contains
                      1.425855513311450d0,1.016666666666670d0,&
                      xv) )then
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
@@ -277,12 +277,12 @@ contains
                      1.980354879597130d0,0.966666666666667d0,&
                      xv) )then
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
@@ -305,12 +305,12 @@ contains
                      3.532953105197020d0,0.515833333333333d0,&
                      xv) )then
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
@@ -333,12 +333,12 @@ contains
                      4.340937896076460d0,0.436666666666667d0,&
                      xv) )then
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
@@ -361,12 +361,12 @@ contains
                      6.273764258554350d0,0.494166666666667d0,&
                      xv) )then
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
@@ -389,12 +389,12 @@ contains
                      7.525348542462330d0,0.465833333333333d0,&
                      xv) )then
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
@@ -417,12 +417,12 @@ contains
                      8.317490494297800d0,0.703333333333333d0,&
                      xv) )then
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
@@ -436,21 +436,21 @@ contains
                 !
              end do
              !
-          else if ( 8.3174904942978d0 <= xv .and. xv <= 9.d0 )then
+          else if ( 8.3174904942978d0 <= xv .and. xv <= 19.d0 )then
              !
              do jj = 1, nj+1
                 !
                 if( yp(jj) <= recta_x1_x2(&
                      8.317490494297800d0,0.703333333333333d0,&
-                     9.d0,0.d0,&
+                     19.d0,0.d0,&
                      xv) )then
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e20_DBL
+                   fuente_con_u(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    au(ii,jj)           = 10.0e40_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e20_DBL
+                   fuente_con_v(ii,jj) = 10.0e20_DBL*10.0e-10_DBL
                    av(ii,jj)           = 10.0e40_DBL
                    !
                    fuente_lin_t(ii,jj) =-10e50_DBL
