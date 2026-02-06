@@ -55,7 +55,7 @@ contains
     !
     ! import xp, yp, DBL
     ! import en_region_tipo1
-    ! import recta_m1xb1, recta_mxb2
+    ! import recta_m1xb1, recta_m2xb2
     implicit none
     !
     real(kind=DBL), dimension(mi+1,nj+1), intent(inout) :: gamma_momeno, gamma_enero
@@ -75,8 +75,8 @@ contains
        ! Tri\'angulo con v\'ertice en p(xv,yv) y altura hh
        ! definido usando las funciones recta_mxb1 y recta_mxb2
        !
-       yv = 0.1_DBL
-       hh = 0.1_DBL
+       yv = 0.3_DBL
+       hh = 0.3_DBL
        do jj = 1, nj+1
           if( yv-hh <= yp(jj) .and. yp(jj) <= yv )then
              do ii = 1, mi+1
@@ -84,12 +84,13 @@ contains
                 ! yy = xp(ii)
                 if( en_region_tipo1(yp(jj),xp(ii),yv-hh,yv,recta_mxb1,recta_mxb2) )then
                    ! print*, "DEBUG: dentro", xp(ii), yp(jj)
+                   gamma_momeno(ii,jj) = 10.0e6_DBL
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   !fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   !fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL 
+                   !fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   !fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
                 end if
              end do
@@ -100,9 +101,9 @@ contains
        !
        ! Cuadrado con centro en xv, yv y lado hh
        !
-       yv = 0.05_DBL
+       yv = 0.15_DBL
        xv = 6.0_DBL
-       hh = 0.1_DBL
+       hh = 0.3_DBL
        !
        do jj = 1, nj+1
           if( yv-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yv+hh/2.0_DBL )then
@@ -110,7 +111,7 @@ contains
                 ! xx = yp(jj) Se utiliza como una regi\'on de tipo II
                 ! yy = xp(ii)
                 if( xv-hh/2.0_DBL <= xp(ii) .and. xp(ii) <= xv+hh/2.0_DBL )then
-                   ! gamma_momeno(ii,jj) = 10.0e6_DBL
+                   gamma_momeno(ii,jj) = 10.0e6_DBL
                    !
                    ! u(ii,jj)            = 10.0_DBL
                    ! v(ii,jj)            = 5.0_DBL
@@ -118,11 +119,11 @@ contains
                    ! u_ant(ii,jj)        = 10.0_DBL
                    ! v_ant(ii,jj)        = 5.0_DBL
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   !fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   !fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL 
+                   !fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   !fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
                    !print*, "DEBUG: dentro", ii,jj, u(ii,jj)
                 end if
@@ -230,7 +231,7 @@ contains
     real(kind=DBL)             :: mm, bb
     !
     mm = 1.0_DBL/2.0_DBL
-    bb =-( 0.1_DBL - mm * 6.0_DBL ) / mm
+    bb =-( 0.3_DBL - mm * 6.0_DBL ) / mm
     recta_mxb1 = xx/mm + bb
     !
   end function recta_mxb1
@@ -246,7 +247,7 @@ contains
     real(kind=DBL)             :: mm, bb
     !
     mm =-1.0_DBL/2.0_DBL
-    bb =-( 0.1_DBL - mm * 6.0_DBL ) / mm
+    bb =-( 0.3_DBL - mm * 6.0_DBL ) / mm
     recta_mxb2 = xx/mm + bb
     !
   end function recta_mxb2
