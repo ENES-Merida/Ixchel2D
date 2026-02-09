@@ -11,6 +11,7 @@ module frontera_inmersa
   !
   use malla, only : mi, nj, DBL       ! dimensiones de la malla y tipo de doble
   use malla, only : xp, yp            ! coordenadas en la malla de la presi\'on
+  use malla, only : xu, yv            ! coordenadas en la malla de la velocidad
   !
   ! Variables para fijar las fronteras inmersas
   !
@@ -62,7 +63,7 @@ contains
     character(5), intent(in)                            :: opcion
     !
     integer         :: ii, jj
-    real(kind=DBL)  :: xv, yv, hh
+    real(kind=DBL)  :: xv, yu, hh
     real(kind=DBL)  :: m1, m2 ! Pend. tri\'angulo
     ! procedure(fun    :: f1, f2
     !
@@ -75,22 +76,22 @@ contains
        ! Tri\'angulo con v\'ertice en p(xv,yv) y altura hh
        ! definido usando las funciones recta_mxb1 y recta_mxb2
        !
-       yv = 0.3_DBL
+       yu = 0.3_DBL
        hh = 0.3_DBL
        do jj = 1, nj+1
-          if( yv-hh <= yp(jj) .and. yp(jj) <= yv )then
+          if( yu-hh <= yp(jj) .and. yp(jj) <= yu )then
              do ii = 1, mi+1
                 ! xx = yp(jj) Se utiliza como una regi\'on de tipo II
                 ! yy = xp(ii)
-                if( en_region_tipo1(yp(jj),xp(ii),yv-hh,yv,recta_mxb1,recta_mxb2) )then
+                if( en_region_tipo1(yp(jj),xp(ii),yu-hh,yu,recta_mxb1,recta_mxb2) )then
                    ! print*, "DEBUG: dentro", xp(ii), yp(jj)
-                   gamma_momeno(ii,jj) = 10.0e6_DBL
+                   !gamma_momeno(ii,jj) = 10.0e6_DBL
                    !
-                   !fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   !fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
-                   !fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   !fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
                 end if
              end do
@@ -101,17 +102,17 @@ contains
        !
        ! Cuadrado con centro en xv, yv y lado hh
        !
-       yv = 0.15_DBL
+       yu = 0.5_DBL
        xv = 6.0_DBL
-       hh = 0.3_DBL
+       hh = 0.1_DBL
        !
        do jj = 1, nj+1
-          if( yv-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yv+hh/2.0_DBL )then
+          if( yu-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hh/2.0_DBL )then
              do ii = 1, mi+1
                 ! xx = yp(jj) Se utiliza como una regi\'on de tipo II
                 ! yy = xp(ii)
                 if( xv-hh/2.0_DBL <= xp(ii) .and. xp(ii) <= xv+hh/2.0_DBL )then
-                   gamma_momeno(ii,jj) = 10.0e6_DBL
+                   !gamma_momeno(ii,jj) = 10.0e6_DBL
                    !
                    ! u(ii,jj)            = 10.0_DBL
                    ! v(ii,jj)            = 5.0_DBL
@@ -119,11 +120,11 @@ contains
                    ! u_ant(ii,jj)        = 10.0_DBL
                    ! v_ant(ii,jj)        = 5.0_DBL
                    !
-                   !fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   !fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
-                   !fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   !fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
                    !print*, "DEBUG: dentro", ii,jj, u(ii,jj)
                 end if
@@ -138,12 +139,12 @@ contains
        !
        ! varillas inmersas para chimenea solar
        !
-       yv = 0.5_DBL
+       yu = 0.5_DBL
        xv = 8.5_DBL
        hh = 0.3_DBL
        !
        do jj = 1, nj+1
-          if( yv-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yv+hh/2.0_DBL )then
+          if( yu-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hh/2.0_DBL )then
              do ii = 1, mi+1
                 ! xx = yp(jj) Se utiliza como una regi\'on de tipo II
                 ! yy = xp(ii)
@@ -179,6 +180,71 @@ contains
     !
   end subroutine definir_cuerpo
   !
+  !
+  !*******************************************************************
+  !
+  ! cond_front_inmersa
+  !
+  !*******************************************************************
+  !
+  subroutine cond_front_inmersa(au_o, av_o, opcion)
+    !
+    implicit none
+    !
+    real(kind=DBL), dimension(mi,nj+1), intent(out) :: au_o
+    real(kind=DBL), dimension(mi+1,nj), intent(out)  :: av_o
+    character(5), intent(in)                        :: opcion
+    !
+    integer         :: ii, jj
+    real(kind=DBL)  :: xv, yu, hh
+    real(kind=DBL)  :: m1, m2 ! Pend. tri\'angulo
+    !
+    !
+    if( opcion == 'cuadr' )then
+       !
+       ! Cuadrado con centro en xv, yu y lado hh
+       !
+       yu = 0.1_DBL
+       xv = 6.0_DBL
+       hh = 0.1_DBL
+       !
+       do jj = 1, nj+1
+          if( yu-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hh/2.0_DBL )then
+             do ii = 1, mi+1
+                if( xv-hh/2.0_DBL <= xp(ii) .and. xp(ii) <= xv+hh/2.0_DBL )then
+                   au_o(ii-1,jj) = -1.e40_DBL
+                   av_o(ii,jj-1) = -1.e40_DBL
+                   !print*, "DEBUG: dentro", ii,jj, u(ii,jj)
+                end if
+                !
+             end do
+             !
+          end if
+          !
+       end do
+       !
+!     else if( opcion == 'trian' )then
+!        !
+!        ! Tri\'angulo con v\'ertice en p(xv,yu) y altura hh
+!        ! definido usando las funciones recta_mxb1 y recta_mxb2
+!        !
+!        yv = 0.3_DBL
+!        hh = 0.3_DBL
+!        do jj = 1, nj
+!           if( yu-hh <= yv(jj) .and. yv(jj) <= yu )then
+!              do ii = 1, mi
+!                 if( en_region_tipo1(yv(jj),xu(ii),yu-hh,yu,recta_mxb1,recta_mxb2) )then
+!                    ! print*, "DEBUG: dentro", xp(ii), yp(jj)
+!                    au_o(ii,jj) = 1.e40_DBL
+!                    !
+!                 end if
+!              end do
+!           end if
+!        end do
+       !
+    end if ! Selecci\'on del caso del cuerpo inmerso
+    !
+  end subroutine cond_front_inmersa
   !
   !*******************************************************************
   !
