@@ -66,6 +66,7 @@ PROGRAM IXCHEL2D
   ! Rutina que determina viscosidades para fronteras inmersas
   !
   use frontera_inmersa, only : definir_cuerpo
+  use frontera_inmersa, only : cond_front_inmersa
   !
   ! Rutinas de soluci\'on de ecuaciones
   !
@@ -324,7 +325,7 @@ PROGRAM IXCHEL2D
   !
   ! Construcci\'on de s\'olidos con frontera inmersa 
   !
-  call definir_cuerpo(gamma_momen, gamma_energ, 'sincu')
+  call definir_cuerpo(gamma_momen, gamma_energ, 'rectn')
   !
   !----------------------------------------------
   !
@@ -766,6 +767,10 @@ PROGRAM IXCHEL2D
                  end do
               end do inicializa_fcorr_press
               !
+              !---------------------------------------------------
+              !frontera inmersa
+              !
+              !call cond_front_inmersa(au, av, 'cuadr')
               !-----------------------------------------------
               !
               ! Se ensambla la ecuaci\'on de la presi\'on en y
@@ -785,7 +790,7 @@ PROGRAM IXCHEL2D
               !-------------------------
               !
               ! Condiciones de frontera
-              !
+              !AC_o
               !$acc parallel loop vector !async(stream1)
               bucle_direccionxe: do ii = 2, mi
                  !***********************
@@ -799,7 +804,11 @@ PROGRAM IXCHEL2D
                  Ry(nj+1,ii)  = 0.0_DBL
               end do bucle_direccionxe
               !
+              !---------------------------------------------------
               !
+              ! imponer correccion de la presion en frontera inmersa
+              !
+              !call cond_front_inmersa(BS, BC, BN, Ry, 'cuadr')
               !---------------------------------------------------
               !
               ! Soluci\'on de la correcci\'on de la presi\'on en y
@@ -854,6 +863,12 @@ PROGRAM IXCHEL2D
                  AC(mi+1,jj) = 1.0_DBL
                  Rx(mi+1,jj) = 0.0_DBL
               end do
+              !
+              !---------------------------------------------------
+              !
+              ! imponer correccion de la presion en frontera inmersa
+              !
+              !call cond_front_inmersa(AI, AC, AD, Rx, 'cuadr')
               !---------------------------------------------------
               !
               ! Soluci\'on de la correcci\'on de la presi\'on en x

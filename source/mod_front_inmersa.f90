@@ -63,15 +63,46 @@ contains
     character(5), intent(in)                            :: opcion
     !
     integer         :: ii, jj
-    real(kind=DBL)  :: xv, yu, hh
+    real(kind=DBL)  :: xv, yu, hh, hx, hy
     real(kind=DBL)  :: m1, m2 ! Pend. tri\'angulo
     ! procedure(fun    :: f1, f2
+    integer         :: xmax, xmin, ymax, ymin !indices de los extremos de los puntos interiores
     !
     ! Mensaje
     !
     print*, " Se define una frontera inmersa con la opcion: ",opcion
     !
-    if( opcion == 'trian' )then
+    !xmin = mi+1
+    !ymin = nj+1
+    !xmax = 0
+    !ymax = 0
+    !
+    if( opcion == 'rectn' )then
+       !
+       ! Cuadrado con centro en xv, yv y lado hh
+       !
+       yu = 2.5_DBL
+       xv = 1.5_DBL
+       hx = 1.0_DBL
+       hy = 5.0_DBL
+       !
+       do jj = 1, nj+1
+          if( yu-hy/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hy/2.0_DBL )then
+                !
+             do ii = 1, mi+1
+                if( xv-hx/2.0_DBL <= xp(ii) .and. xp(ii) <= xv+hx/2.0_DBL )then
+                   !gamma_momeno(ii,jj) = 2.0_DBL
+                   gamma_momeno(ii,jj) = 10.0e6_DBL
+                   !
+                end if
+                !
+             end do
+             !
+          end if
+          !
+       end do
+       !
+    else if( opcion == 'trian' )then
        !
        ! Tri\'angulo con v\'ertice en p(xv,yv) y altura hh
        ! definido usando las funciones recta_mxb1 y recta_mxb2
@@ -102,17 +133,29 @@ contains
        !
        ! Cuadrado con centro en xv, yv y lado hh
        !
-       yu = 0.5_DBL
-       xv = 6.0_DBL
-       hh = 0.1_DBL
+       yu = 3.0_DBL
+       xv = 0.5_DBL
+       hh = 1.0_DBL
        !
        do jj = 1, nj+1
           if( yu-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hh/2.0_DBL )then
+                !
+                !if(jj < ymin) .or. (jj > ymax) then
+                !        ymin = jj-1
+                !        ymax = jj
+                !end if
+                !
              do ii = 1, mi+1
                 ! xx = yp(jj) Se utiliza como una regi\'on de tipo II
                 ! yy = xp(ii)
                 if( xv-hh/2.0_DBL <= xp(ii) .and. xp(ii) <= xv+hh/2.0_DBL )then
+                   gamma_momeno(ii,jj) = 2.0_DBL
                    !gamma_momeno(ii,jj) = 10.0e6_DBL
+                   !
+                   !if(ii < xmin .or. ii > xmax) then
+                   !     xmin = ii-1
+                   !     xmax = ii
+                   !end if
                    !
                    ! u(ii,jj)            = 10.0_DBL
                    ! v(ii,jj)            = 5.0_DBL
@@ -120,11 +163,11 @@ contains
                    ! u_ant(ii,jj)        = 10.0_DBL
                    ! v_ant(ii,jj)        = 5.0_DBL
                    !
-                   fuente_lin_u(ii,jj) =-10.0e50_DBL
-                   fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   !fuente_lin_u(ii,jj) =-10.0e50_DBL
+                   !fuente_con_u(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
-                   fuente_lin_v(ii,jj) =-10.0e50_DBL
-                   fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+                   !fuente_lin_v(ii,jj) =-10.0e50_DBL
+                   !fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
                    !print*, "DEBUG: dentro", ii,jj, u(ii,jj)
                 end if
@@ -175,7 +218,28 @@ contains
           end if
           !
        end do
-       !       
+       !
+    else if ( opcion == 'tubov' )then
+       !
+       ! rectangulo
+       !
+       yu = 3.0_DBL
+       hh = 2.0_DBL
+       !
+       do jj = 1, nj+1
+          if( yu-(hh/2.0_DBL) <= yp(jj) .and. yp(jj) <= yu+(hh/2.0_DBL))then
+             !
+             do ii = 1, mi+1
+                !
+                gamma_momeno(ii,jj) = 4.0_DBL*10.0e-4_DBL
+                !gamma_momeno(ii,jj) = 10.0e6_DBL
+                !
+             end do
+             !
+          end if
+          !
+       end do
+       !
     end if ! Selecci\'on del caso del cuerpo inmerso
     !
   end subroutine definir_cuerpo
@@ -187,13 +251,12 @@ contains
   !
   !*******************************************************************
   !
-  subroutine cond_front_inmersa(au_o, av_o, opcion)
+  subroutine cond_front_inmersa(AI_o,AC_o,AD_o,Rx_o, opcion)
     !
     implicit none
     !
-    real(kind=DBL), dimension(mi,nj+1), intent(out) :: au_o
-    real(kind=DBL), dimension(mi+1,nj), intent(out)  :: av_o
-    character(5), intent(in)                        :: opcion
+    real(kind=DBL), dimension(mi+1,nj+1), intent(out) :: AI_o, AC_o, AD_o, Rx_o
+    character(5), intent(in)                          :: opcion
     !
     integer         :: ii, jj
     real(kind=DBL)  :: xv, yu, hh
@@ -204,16 +267,18 @@ contains
        !
        ! Cuadrado con centro en xv, yu y lado hh
        !
-       yu = 0.1_DBL
+       yu = 0.5_DBL
        xv = 6.0_DBL
-       hh = 0.1_DBL
+       hh = 0.2_DBL
        !
        do jj = 1, nj+1
           if( yu-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hh/2.0_DBL )then
              do ii = 1, mi+1
                 if( xv-hh/2.0_DBL <= xp(ii) .and. xp(ii) <= xv+hh/2.0_DBL )then
-                   au_o(ii-1,jj) = -1.e40_DBL
-                   av_o(ii,jj-1) = -1.e40_DBL
+                   AI_o(ii,jj) = 0.0_DBL
+                   AD_o(ii,jj) = 0.0_DBL
+                   AC_o(ii,jj) = 1.0_DBL
+                   Rx_o(ii,jj) = 0.0_DBL
                    !print*, "DEBUG: dentro", ii,jj, u(ii,jj)
                 end if
                 !
