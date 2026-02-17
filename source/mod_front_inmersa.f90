@@ -168,9 +168,6 @@ contains
                    !
                    !fuente_lin_v(ii,jj) =-10.0e50_DBL
                    !fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
-		   !
-		   fuente_lin_t(ii,jj) =-10.0e40_DBL
-                   fuente_con_t(ii,jj) = 10.0e40_DBL*1.0_DBL
                    !
                    !print*, "DEBUG: dentro", ii,jj, u(ii,jj)
                 end if
@@ -179,6 +176,22 @@ contains
              !
           end if
           !
+       end do
+       yu=8.5_DBL
+       xv=0.25_DBL
+       hx=0.5_DBL
+       hy=1.0_DBL
+       do jj = 1, nj+1
+          if ( yu-hy/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hy/2.0_DBL )then
+             do ii = 1, mi+1
+                if( xv-hx/2.0_DBL <= xp(ii) .and. xp(ii) <= xv+hx/2.0_DBL )then
+                   !
+                   fuente_lin_t(ii,jj) =-10.0e40_DBL
+                   fuente_con_t(ii,jj) = 10.0e40_DBL*1.0_DBL
+                   !
+                end if
+             end do
+          end if
        end do
        !
     else if( opcion == 'chime' )then
