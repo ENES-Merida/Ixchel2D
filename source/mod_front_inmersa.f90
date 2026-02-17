@@ -81,16 +81,16 @@ contains
        !
        ! Cuadrado con centro en xv, yv y lado hh
        !
-       yu = 2.5_DBL
-       xv = 1.5_DBL
-       hx = 1.0_DBL
+       yu = 3.0_DBL
+       xv = 0.5_DBL
+       hx = 2.0_DBL
        hy = 5.0_DBL
        !
        do jj = 1, nj+1
-          if( yu-hy/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hy/2.0_DBL )then
+          if( yu-(hy/2.0_DBL) <= yp(jj) .and. yp(jj) <= yu+(hy/2.0_DBL) )then
                 !
              do ii = 1, mi+1
-                if( xv-hx/2.0_DBL <= xp(ii) .and. xp(ii) <= xv+hx/2.0_DBL )then
+                if( xv-(hx/2.0_DBL) <= xp(ii) .and. xp(ii) <= xv+(hx/2.0_DBL) )then
                    !gamma_momeno(ii,jj) = 2.0_DBL
                    gamma_momeno(ii,jj) = 10.0e6_DBL
                    !
@@ -133,9 +133,9 @@ contains
        !
        ! Cuadrado con centro en xv, yv y lado hh
        !
-       yu = 3.0_DBL
-       xv = 0.5_DBL
-       hh = 1.0_DBL
+       yu = 5.0_DBL
+       xv = 5.0_DBL
+       hh = 9.8_DBL
        !
        do jj = 1, nj+1
           if( yu-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hh/2.0_DBL )then
@@ -149,8 +149,8 @@ contains
                 ! xx = yp(jj) Se utiliza como una regi\'on de tipo II
                 ! yy = xp(ii)
                 if( xv-hh/2.0_DBL <= xp(ii) .and. xp(ii) <= xv+hh/2.0_DBL )then
-                   gamma_momeno(ii,jj) = 2.0_DBL
-                   !gamma_momeno(ii,jj) = 10.0e6_DBL
+                   !gamma_momeno(ii,jj) = 2.0_DBL
+                   gamma_momeno(ii,jj) = 10.0e6_DBL
                    !
                    !if(ii < xmin .or. ii > xmax) then
                    !     xmin = ii-1
@@ -168,6 +168,9 @@ contains
                    !
                    !fuente_lin_v(ii,jj) =-10.0e50_DBL
                    !fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
+		   !
+		   fuente_lin_t(ii,jj) =-10.0e40_DBL
+                   fuente_con_t(ii,jj) = 10.0e40_DBL*1.0_DBL
                    !
                    !print*, "DEBUG: dentro", ii,jj, u(ii,jj)
                 end if
