@@ -79,12 +79,12 @@ contains
     !
     if( opcion == 'rectn' )then
        !
-       ! Cuadrado con centro en xv, yv y lado hh
+       ! Rectangulo con centro en xv, yv y lado hh
        !
-       yu = 3.0_DBL
+       yu = 2.0_DBL
        xv = 0.5_DBL
-       hx = 2.0_DBL
-       hy = 5.0_DBL
+       hx = 1.0_DBL
+       hy = 1.0_DBL
        !
        do jj = 1, nj+1
           if( yu-(hy/2.0_DBL) <= yp(jj) .and. yp(jj) <= yu+(hy/2.0_DBL) )then
@@ -93,6 +93,9 @@ contains
                 if( xv-(hx/2.0_DBL) <= xp(ii) .and. xp(ii) <= xv+(hx/2.0_DBL) )then
                    !gamma_momeno(ii,jj) = 2.0_DBL
                    gamma_momeno(ii,jj) = 10.0e6_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10.0e40_DBL
+                   fuente_con_t(ii,jj) = 10.0e40_DBL*1.0_DBL
                    !
                 end if
                 !
@@ -135,7 +138,7 @@ contains
        !
        yu = 5.0_DBL
        xv = 5.0_DBL
-       hh = 9.8_DBL
+       hh = 9.6_DBL
        !
        do jj = 1, nj+1
           if( yu-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hh/2.0_DBL )then
@@ -169,6 +172,10 @@ contains
                    !fuente_lin_v(ii,jj) =-10.0e50_DBL
                    !fuente_con_v(ii,jj) = 10.0e50_DBL*10.0e-12_DBL
                    !
+                   !
+                   !fuente_lin_t(ii,jj) =-10.0e40_DBL
+                   !fuente_con_t(ii,jj) = 10.0e40_DBL*1.0_DBL
+                   !
                    !print*, "DEBUG: dentro", ii,jj, u(ii,jj)
                 end if
                 !
@@ -177,22 +184,29 @@ contains
           end if
           !
        end do
-       yu=8.5_DBL
-       xv=0.25_DBL
-       hx=0.5_DBL
-       hy=1.0_DBL
+       yu = 8.0_DBL
+       xv = 0.1_DBL
+       hh = 0.2_DBL
+       !
        do jj = 1, nj+1
-          if ( yu-hy/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hy/2.0_DBL )then
+          if( yu-(hh/2.0_DBL) <= yp(jj) .and. yp(jj) <= yu+(hh/2.0_DBL) )then
+                !
              do ii = 1, mi+1
-                if( xv-hx/2.0_DBL <= xp(ii) .and. xp(ii) <= xv+hx/2.0_DBL )then
+                if( xv-(hh/2.0_DBL) <= xp(ii) .and. xp(ii) <= xv+(hh/2.0_DBL) )then
+                   !gamma_momeno(ii,jj) = 2.0_DBL
+                   !gamma_momeno(ii,jj) = 10.0e6_DBL
                    !
                    fuente_lin_t(ii,jj) =-10.0e40_DBL
                    fuente_con_t(ii,jj) = 10.0e40_DBL*1.0_DBL
                    !
                 end if
+                !
              end do
+             !
           end if
+          !
        end do
+       !
        !
     else if( opcion == 'chime' )then
        !
