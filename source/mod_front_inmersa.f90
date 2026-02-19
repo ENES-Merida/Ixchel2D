@@ -81,10 +81,10 @@ contains
        !
        ! Rectangulo con centro en xv, yv y lado hh
        !
-       yu = 2.0_DBL
-       xv = 0.5_DBL
-       hx = 1.0_DBL
-       hy = 1.0_DBL
+       yu = 5.0_DBL
+       xv = 2.5_DBL
+       hx = 4.8_DBL
+       hy = 9.8_DBL
        !
        do jj = 1, nj+1
           if( yu-(hy/2.0_DBL) <= yp(jj) .and. yp(jj) <= yu+(hy/2.0_DBL) )then
@@ -93,6 +93,30 @@ contains
                 if( xv-(hx/2.0_DBL) <= xp(ii) .and. xp(ii) <= xv+(hx/2.0_DBL) )then
                    !gamma_momeno(ii,jj) = 2.0_DBL
                    gamma_momeno(ii,jj) = 10.0e6_DBL
+                   !
+                   fuente_lin_t(ii,jj) =-10.0e40_DBL
+                   fuente_con_t(ii,jj) = 10.0e40_DBL*1.0_DBL
+                   !
+                end if
+                !
+             end do
+             !
+          end if
+          !
+       end do
+       !
+       yu = 9.0_DBL
+       xv = 0.05_DBL
+       hx = 0.1_DBL
+       hy = 2.0_DBL
+       !
+       do jj = 1, nj+1
+          if( yu-(hy/2.0_DBL) <= yp(jj) .and. yp(jj) <= yu+(hy/2.0_DBL) )then
+                !
+             do ii = 1, mi+1
+                if( xv-(hx/2.0_DBL) <= xp(ii) .and. xp(ii) <= xv+(hx/2.0_DBL) )then
+                   gamma_momeno(ii,jj) = sqrt(7.0_DBL/10.0e7_DBL)*5.0_DBL
+                   !gamma_momeno(ii,jj) = 10.0e6_DBL
                    !
                    fuente_lin_t(ii,jj) =-10.0e40_DBL
                    fuente_con_t(ii,jj) = 10.0e40_DBL*1.0_DBL
@@ -138,7 +162,7 @@ contains
        !
        yu = 5.0_DBL
        xv = 5.0_DBL
-       hh = 9.6_DBL
+       hh = 9.8_DBL
        !
        do jj = 1, nj+1
           if( yu-hh/2.0_DBL <= yp(jj) .and. yp(jj) <= yu+hh/2.0_DBL )then
@@ -184,16 +208,17 @@ contains
           end if
           !
        end do
-       yu = 8.0_DBL
-       xv = 0.1_DBL
-       hh = 0.2_DBL
+       yu = 9.0_DBL
+       xv = 0.05_DBL
+       hx = 0.1_DBL
+       hy = 2.0_DBL
        !
        do jj = 1, nj+1
-          if( yu-(hh/2.0_DBL) <= yp(jj) .and. yp(jj) <= yu+(hh/2.0_DBL) )then
+          if( yu-(hy/2.0_DBL) <= yp(jj) .and. yp(jj) <= yu+(hy/2.0_DBL) )then
                 !
              do ii = 1, mi+1
-                if( xv-(hh/2.0_DBL) <= xp(ii) .and. xp(ii) <= xv+(hh/2.0_DBL) )then
-                   !gamma_momeno(ii,jj) = 2.0_DBL
+                if( xv-(hx/2.0_DBL) <= xp(ii) .and. xp(ii) <= xv+(hx/2.0_DBL) )then
+                   gamma_momeno(ii,jj) = sqrt(7.0_DBL/10.0e7_DBL)*5.0_DBL
                    !gamma_momeno(ii,jj) = 10.0e6_DBL
                    !
                    fuente_lin_t(ii,jj) =-10.0e40_DBL
